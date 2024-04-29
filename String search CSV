@@ -1,0 +1,33 @@
+import csv
+import re
+from collections import Counter
+
+output_file = "2023.csv"
+
+# Search term
+search_term = "bryggeri"
+
+# Regular expression pattern to match substrings containing the search term
+pattern = re.compile(r'\b{}\b'.format(re.escape(search_term)), flags=re.IGNORECASE)
+
+# List to store headlines containing the search term
+matching_headlines = []
+
+# Read the CSV file
+with open(output_file, 'r', encoding='utf-8') as csv_file:
+    csv_reader = csv.DictReader(csv_file)
+    
+    # Iterate over each job posting
+    for row in csv_reader:
+        # Check if the search term is in the description text
+        if pattern.search(row['description_text']):
+            # If found, store the headline in the list
+            matching_headlines.append(row['headline'])
+
+# Count occurrences of each headline
+headline_counts = Counter(matching_headlines)
+
+# Print top 10 most common headlines
+print("\nTop 10 most common headlines containing the search term:")
+for headline, count in headline_counts.most_common(10):
+    print(f"{headline}: {count} occurrences")

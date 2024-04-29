@@ -1,4 +1,5 @@
-Single Values
+Single Values:
+
 id
 external_id
 original_id
@@ -25,7 +26,8 @@ last_publication_date
 timestamp
 source_type
 
-Nested Objects
+Nested Objects:
+
 description text
 description text_formatted
 description company_information
@@ -79,7 +81,8 @@ nice_to_have education_level
 application_contacts
 keywords extracted
 
-Lists
+Lists:
+
 must_have skills
 must_have languages
 must_have work_experiences

@@ -1,1 +1,86 @@
+# Denna kod tränar en logistisk regressionsmodell för att förutsäga om ett körkort krävs baserat på egenskaper
+# Koden tillämpar modellen för att förutsäga om ett körkort behövs för en ny jobbtitel.
 
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+from gensim.models import Word2Vec
+import numpy as np
+
+file_path = 'resultat.csv'
+
+# Läs in data från CSV-filen och exkludera kolumner
+data = pd.read_csv(file_path, sep=';', encoding='utf-8')
+columns_to_exclude = ['employment_type', 'occupation', 'occupation_group', 'occupation_field', 'salary_type', 'duration', 'working_hours_type']
+data = data.drop(columns_to_exclude, axis=1)
+
+# Skapa en Word2Vec-modell för embeddings av "headline"
+sentences = [str(headline).split() for headline in data['headline']]
+word2vec_model = Word2Vec(sentences, vector_size=100, window=5, min_count=1, workers=4)
+
+# Skapa numeriska egenskaper baserade på embeddings för "headline"
+headline_embeddings = np.array([np.mean([word2vec_model.wv[word] for word in str(headline).split()], axis=0) for headline in data['headline']])
+headline_embeddings_df = pd.DataFrame(headline_embeddings, columns=[f'embedding_{i}' for i in range(headline_embeddings.shape[1])])
+
+# Ta bort den ursprungliga "headline"-kolumnen från data
+data = data.drop('headline', axis=1)
+
+# Kombinera de nya numeriska egenskaperna med befintliga
+data = pd.concat([data, headline_embeddings_df], axis=1)
+
+# Dela upp datan i tränings- och testuppsättningar
+X = data.drop('driving_license_required', axis=1)
+y = data['driving_license_required']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Skapa och träna en logistisk regressionsmodell
+model = LogisticRegression(max_iter=5000)
+model.fit(X_train, y_train)
+
+# Gör förutsägelser på testuppsättningen
+y_pred = model.predict(X_test)
+
+# Utvärdera modellen
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy)
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+
+print(data.head())
+
+# Definiera den nya jobbannonsen
+new_job_ad = {
+    'headline': 'Chaufför', 
+    'experience_required': 1,
+    'access_to_own_car': 0,
+    'driving_license_required': 1,
+    'remote_work': 0   
+}
+
+# Skapa en pandas DataFrame från den nya jobbannonsen
+new_job_df = pd.DataFrame([new_job_ad])
+
+# Extrahera 'headline' från DataFrame för att använda i Word2Vec-modellen
+headline = new_job_df['headline'].iloc[0]
+
+# Beräkna embeddings för den angivna jobbtiteln med din tidigare tränade Word2Vec-modell
+headline_embedding = np.mean([word2vec_model.wv[word] for word in headline.split() if word in word2vec_model.wv], axis=0)
+
+# Skapa en DataFrame från de beräknade embeddings
+embedding_df = pd.DataFrame([headline_embedding], columns=[f'embedding_{i}' for i in range(headline_embedding.shape[0])])
+
+# Skapa den ursprungliga DataFrame från den nya jobbannonsen, utesluta 'headline' och 'driving_license_required'
+new_job_df = pd.DataFrame([new_job_ad], columns=['experience_required', 'access_to_own_car', 'remote_work'])
+
+# Kombinera de nya numeriska egenskaperna med befintliga via pd.concat för att undvika fragmentering
+new_job_df = pd.concat([new_job_df, embedding_df], axis=1)
+
+# Gör en förutsägelse med den tränade modellen
+prediction = model.predict(new_job_df)
+
+# Printa ut resultatet av förutsägelsen
+if prediction[0]:
+    print("Ett körkort krävs för den här jobbannonsen.")
+else:
+    print("Inget körkort krävs för den här jobbannonsen.")

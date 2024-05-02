@@ -1,33 +1,45 @@
 import csv
 import re
-from collections import Counter
 
 output_file = "2023.csv"
 
-# Search term
-search_term = "bryggeri"
+# Ask the user for the search term
+search_term = ("Remote: Älskar du Python/Django? Ansök via SSH!")
 
-# Regular expression pattern to match substrings containing the search term
-pattern = re.compile(r'\b{}\b'.format(re.escape(search_term)), flags=re.IGNORECASE)
+# Ask the user to choose the search mode (exact/contains)
+search_mode = ("exact")
 
-# List to store headlines containing the search term
-matching_headlines = []
+# Ask the user for the column name to search
+search_column = ("headline")
+
+# Ask the user for the column name to print
+print_column = ("keywords_extracted_occupation")
+
+# Prepare the regex pattern based on the search mode
+if search_mode.lower() == 'exact':
+    pattern = re.compile(re.escape(search_term), flags=re.IGNORECASE)
+else:
+    pattern = re.compile(r'\b{}\b'.format(re.escape(search_term)), flags=re.IGNORECASE)
+
+# List to store data from the specified print column for rows where the search term is found in the search column
+column_data = []
 
 # Read the CSV file
 with open(output_file, 'r', encoding='utf-8') as csv_file:
     csv_reader = csv.DictReader(csv_file)
-    
-    # Iterate over each job posting
-    for row in csv_reader:
-        # Check if the search term is in the description text
-        if pattern.search(row['description_text']):
-            # If found, store the headline in the list
-            matching_headlines.append(row['headline'])
+    # Ensure both columns exist in the CSV
+    if search_column not in csv_reader.fieldnames or print_column not in csv_reader.fieldnames:
+        print(f"Error: Check your column names. Available columns are: {csv_reader.fieldnames}")
+    else:
+        # Iterate over each row in the CSV
+        for row in csv_reader:
+            # Check if the search column exists and contains the search term according to the selected mode
+            if search_column in row and pattern.search(row[search_column]):
+                # If found, store the data from the print column if it exists
+                if print_column in row:
+                    column_data.append(row[print_column])
 
-# Count occurrences of each headline
-headline_counts = Counter(matching_headlines)
-
-# Print top 10 most common headlines
-print("\nTop 10 most common headlines containing the search term:")
-for headline, count in headline_counts.most_common(10):
-    print(f"{headline}: {count} occurrences")
+# Print the data from the specified print column that matches the search term in the search column
+print(f"\nData from '{print_column}' for rows where '{search_column}' contains the search term:")
+for data in column_data:
+    print(data)

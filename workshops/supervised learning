@@ -1,1 +1,38 @@
+# Läser in datasetet, rensar datan och sparar relevant data till en ny csv fil
 
+import pandas as pd
+
+file_path = '2023.jsonl'
+
+# Funktion för att rensa och förbereda varje chunk
+def preprocess_chunk(chunk):
+    # Specificera kolumner att behålla och deras datatyper om möjligt
+    cols_to_keep = ['headline', 'experience_required', 'access_to_own_car', 'driving_license_required', 'employment_type', 'occupation', 'occupation_group', 'occupation_field', 'salary_type', 'duration', 'working_hours_type', 'remote_work']
+    chunk = chunk[cols_to_keep].copy()  # Skapa en kopia av datan för att undvika SettingWithCopyWarning
+    
+    # Hantera listor eller dictionaries innan konvertering till kategoriska datatyper
+    for col in cols_to_keep:
+        if chunk[col].apply(lambda x: isinstance(x, list) or isinstance(x, dict)).any():
+            chunk[col] = chunk[col].apply(lambda x: x[0]['label'] if isinstance(x, list) and x else (x['label'] if isinstance(x, dict) and 'label' in x else None))
+        
+        # Säker tilldelning med .loc och konvertera till kategorisk datatyp, med felhantering
+        chunk.loc[:, col] = chunk[col].astype('category', errors='ignore')
+
+    return chunk
+
+# Lista för att hålla bearbetade chunks
+data_chunks = []
+
+# Läs in datan i chunks och bearbeta varje chunk
+chunk_size = 5000
+for chunk in pd.read_json(file_path, lines=True, chunksize=chunk_size):
+    processed_chunk = preprocess_chunk(chunk)
+    data_chunks.append(processed_chunk)
+
+# Sammanfoga alla bearbetade chunks till en enda DataFrame
+data = pd.concat(data_chunks, ignore_index=True)
+# Spara DataFrame till en CSV-fil
+data.to_csv('resultat.csv', index=False, sep=';', encoding='utf-8-sig')
+
+# Visa de första raderna för att kontrollera datan
+print(data.head())

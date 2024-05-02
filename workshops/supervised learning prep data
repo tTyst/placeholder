@@ -1,4 +1,5 @@
-# Läser in datasetet, rensar datan och sparar relevant data till en ny csv fil
+# Denna kod läser in JSONL-fil bearbetar och förbereder varje del genom att konvertera kolumner till kategoriska datatyper samt hantera komplexa datatyper, 
+# och sammanfogar sedan alla delar till en enda DataFrame som sparas som en CSV-fil.
 
 import pandas as pd
 

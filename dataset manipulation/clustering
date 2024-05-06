@@ -29,7 +29,7 @@ processed_data = []
 
 # Read JSONL file in chunks
 chunk_size = 5000
-with open('2020.jsonl', 'r', encoding='utf-8') as file:
+with open('2023.jsonl', 'r', encoding='utf-8') as file:
     chunk = []
     for i, line in enumerate(file):
         chunk.append(json.loads(line))
@@ -63,7 +63,7 @@ clusters = kmeans.fit_predict(scaled_features)
 filtered_df.loc[:, 'cluster'] = clusters
 
 # Save the result to a CSV file
-output_file = 'filtered_job_postings_2020.csv'
+output_file = 'filtered_job_postings_2023.csv'
 filtered_df.to_csv(output_file, index=False)
 
 # Print success message

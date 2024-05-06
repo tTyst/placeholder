@@ -1,1 +1,70 @@
+import pandas as pd
+import json
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.cluster import KMeans
 
+# Define keywords for filtering
+keywords = ['restaurang', 'kock', 'servitör', 'servitris', 'bartender', 'diskare']
+
+# Function to extract 'label' values from nested JSON structure
+def extract_label(nested_list):
+    if nested_list and isinstance(nested_list, list) and 'label' in nested_list[0]:
+        return nested_list[0]['label']
+    return None
+
+# Function to process a chunk of data
+def process_chunk(chunk):
+    # Filter rows where headline contains keywords
+    chunk_filtered = chunk[chunk['headline'].str.contains('|'.join(keywords), case=False, regex=True, na=False)].copy()
+    
+    # Extract relevant labels
+    chunk_filtered.loc[:, 'occupation_label'] = chunk_filtered['occupation'].apply(extract_label)
+    chunk_filtered.loc[:, 'occupation_group_label'] = chunk_filtered['occupation_group'].apply(extract_label)
+    chunk_filtered.loc[:, 'occupation_field_label'] = chunk_filtered['occupation_field'].apply(extract_label)
+    
+    return chunk_filtered
+
+# Initialize empty list to store processed chunks
+processed_data = []
+
+# Read JSONL file in chunks
+chunk_size = 5000
+with open('2020.jsonl', 'r', encoding='utf-8') as file:
+    chunk = []
+    for i, line in enumerate(file):
+        chunk.append(json.loads(line))
+        if len(chunk) == chunk_size:
+            df_chunk = pd.DataFrame(chunk)
+            processed_data.append(process_chunk(df_chunk))
+            chunk = []
+    if chunk:
+        df_chunk = pd.DataFrame(chunk)
+        processed_data.append(process_chunk(df_chunk))
+
+# Concatenate processed chunks into a single DataFrame
+filtered_df = pd.concat(processed_data, ignore_index=True)
+
+# Select features for clustering
+features = filtered_df[['occupation_label', 'occupation_group_label', 'occupation_field_label']]
+
+# Encode categorical features
+encoder = LabelEncoder()
+encoded_features = features.apply(encoder.fit_transform)
+
+# Standardize features
+scaler = StandardScaler()
+scaled_features = scaler.fit_transform(encoded_features)
+
+# Apply KMeans clustering
+kmeans = KMeans(n_clusters=5)  # Adjust number of clusters as needed
+clusters = kmeans.fit_predict(scaled_features)
+
+# Add cluster labels to the dataset
+filtered_df.loc[:, 'cluster'] = clusters
+
+# Save the result to a CSV file
+output_file = 'filtered_job_postings_2020.csv'
+filtered_df.to_csv(output_file, index=False)
+
+# Print success message
+print(f"Data processing complete. Results saved to {output_file}")´

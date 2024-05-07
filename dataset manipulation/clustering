@@ -67,4 +67,4 @@ output_file = 'filtered_job_postings_2023.csv'
 filtered_df.to_csv(output_file, index=False)
 
 # Print success message
-print(f"Data processing complete. Results saved to {output_file}")´
+print(f"Data processing complete. Results saved to {output_file}")

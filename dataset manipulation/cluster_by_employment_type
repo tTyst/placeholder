@@ -68,7 +68,7 @@ clusters = agg_cluster.fit_predict(scaled_features)
 filtered_df['cluster'] = clusters
 
 # Spara resultatet
-output_file = 'filter_by_employ_23_2.csv'
+output_file = 'filter_by_employ_23.csv'
 filtered_df.to_csv(output_file, index=False)
 
 # Skriv ut ett framgångsmeddelande

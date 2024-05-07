@@ -1,6 +1,6 @@
 import pandas as pd
 
-# Load the CSV file into a DataFrame
+# Load the CSV file into a DataFrame OBS! se till att ändra till korrekt inputfil. 
 df = pd.read_csv('filtered_job_postings.csv')
 
 # Ensure the 'cluster' column exists

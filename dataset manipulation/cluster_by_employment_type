@@ -2,8 +2,6 @@ import pandas as pd
 import json
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.cluster import AgglomerativeClustering
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
 
 # Definiera nyckelord för filtrering
 keywords = ['restaurang', 'kock', 'servitör', 'servitris', 'bartender', 'diskare']
@@ -20,10 +18,17 @@ def extract_label_from_dict(data):
         return data.get('label', None)
     return None
 
+# Funktion för att extrahera säkert från JSON-struktur med listor
+def extract_conditions_from_dict(data):
+    if isinstance(data, dict):
+        return data.get('conditions', None)
+    return None
+
 # Funktion för att bearbeta en datachunk
 def process_chunk(chunk):
     chunk_filtered = chunk[chunk['headline'].str.contains('|'.join(keywords), case=False, regex=True, na=False)].copy()
     
+    chunk_filtered['description_conditions'] = chunk_filtered['description'].apply(extract_conditions_from_dict)
     chunk_filtered['working_hours_type_label'] = chunk_filtered['working_hours_type'].apply(extract_label_from_dict)
     chunk_filtered['duration_label'] = chunk_filtered['duration'].apply(extract_label_from_dict)
     chunk_filtered['employment_type_label'] = chunk_filtered['employment_type'].apply(extract_label_from_list)
@@ -50,24 +55,20 @@ filtered_df = pd.concat(processed_data, ignore_index=True)
 
 # One-Hot Encoding av data
 encoder = OneHotEncoder(sparse=False)
-encoded_data = encoder.fit_transform(filtered_df[['working_hours_type_label', 'duration_label', 'employment_type_label']])
+encoded_data = encoder.fit_transform(filtered_df[['description_conditions','working_hours_type_label', 'duration_label', 'employment_type_label']])
 encoded_df = pd.DataFrame(encoded_data, columns=encoder.get_feature_names_out())
 
 # Standardisera data
 scaler = StandardScaler()
 scaled_features = scaler.fit_transform(encoded_df)
 
-# PCA för att visualisera
-pca = PCA(n_components=2)
-pca_data = pca.fit_transform(scaled_features)
-
-# Agglomerative Clustering
-agg_cluster = AgglomerativeClustering(n_clusters=3)
+# Agglomerative Clustering OBS! ändra n_clusters baserat på hur många kluster man vill skapa
+agg_cluster = AgglomerativeClustering(n_clusters=4)
 clusters = agg_cluster.fit_predict(scaled_features)
 filtered_df['cluster'] = clusters
 
 # Spara resultatet
-output_file = 'filter_by_employ.csv'
+output_file = 'filter_by_employ_23_2.csv'
 filtered_df.to_csv(output_file, index=False)
 
 # Skriv ut ett framgångsmeddelande

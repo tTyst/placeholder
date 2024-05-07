@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Läs in DataFrame från CSV
+# Läs in DataFrame från CSV OBS! se till att inputfilen är korrekt
 df = pd.read_csv('filter_by_employ_23_2.csv')
 
 # Konvertera publication_date till datetime

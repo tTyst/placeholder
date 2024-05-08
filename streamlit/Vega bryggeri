@@ -30,11 +30,60 @@ def get_comparative_data():
         frames.append(pd.DataFrame({'Year': [year], 'Sales': [total_sales]}))
     return pd.concat(frames)
 
+def get_combined_percentage_change_data():
+    categories = ["Lageröl", "Säsongsöl", "Specialöl"]
+    years = [2018, 2019, 2020, 2021, 2022, 2023]
+    results = []
+
+    previous_total_excl_vega = None
+    previous_vega_sales = None
+
+    for year in years:
+        data = load_data(year)
+        vega_sales_yearly = 0
+        total_sales_yearly = 0
+        
+        for category in categories:
+            category_data = data[data['Varugrupp detalj'] == category]
+            total_sales = category_data['Försäljning i liter'].sum()
+            vega_sales = category_data[category_data['Producentnamn'] == 'Vega Bryggeri']['Försäljning i liter'].sum()
+
+            vega_sales_yearly += vega_sales
+            total_sales_yearly += total_sales
+
+        other_producers_sales = total_sales_yearly - vega_sales_yearly
+
+        if previous_total_excl_vega is not None and previous_vega_sales is not None:
+            total_market_change = ((other_producers_sales - previous_total_excl_vega) / previous_total_excl_vega * 100) if previous_total_excl_vega > 0 else 0
+            vega_change = ((vega_sales_yearly - previous_vega_sales) / previous_vega_sales * 100) if previous_vega_sales > 0 else 0
+        else:
+            total_market_change = 0
+            vega_change = 0
+
+        results.append({
+            'Year': year,
+            'Vega Bryggeri Change %': vega_change,
+            'Total Market Change %': total_market_change,
+            'Vega Bryggeri Sales': vega_sales_yearly,
+            'Other Producers Sales': other_producers_sales
+        })
+
+        previous_total_excl_vega = other_producers_sales
+        previous_vega_sales = vega_sales_yearly
+
+    return pd.DataFrame(results)
+
+
+
+
+
+
+
 # Sidebar
 st.sidebar.title("Menu")
 
 # Tabs for analysis
-tab1, tab2 = st.tabs(["Yearly Analysis", "Comparative Analysis"])
+tab1, tab2, tab3 = st.tabs(["Yearly Analysis", "Comparative Analysis", "Annual Percentage Change Comparison"])
 
 with tab1:
     year = st.selectbox("Select Year", (2023, 2022, 2021, 2020, 2019, 2018))
@@ -57,6 +106,19 @@ with tab2:
                   labels={'Sales': 'Sales in Liters', 'Year': 'Year'},
                   title='Sales Comparison Over Years')
     st.plotly_chart(fig, use_container_width=True)
+
+
+with tab3:
+    st.subheader("Annual Market Share Change Comparison")
+    percentage_data = get_combined_percentage_change_data()
+
+    fig = px.line(percentage_data, x='Year', y=['Vega Bryggeri Change %', 'Total Market Change %'],
+                  labels={'value': 'Year-over-Year Change (%)', 'variable': 'Market Segment'},
+                  title='Annual Market Share Change Percentage (Vega Bryggeri excluded)',
+                  hover_data=['Vega Bryggeri Sales', 'Other Producers Sales'])
+    st.plotly_chart(fig, use_container_width=True)
+    st.dataframe(percentage_data[['Year', 'Vega Bryggeri Change %', 'Total Market Change %']])
+
 
 # Footer
 st.markdown("---")

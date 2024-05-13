@@ -8,7 +8,7 @@ if 'cluster' not in df.columns:
     raise KeyError("The DataFrame must contain a 'cluster' column.")
 
 # Specified columns to display from each cluster
-display_columns = ['description_conditions', 'working_hours_type_label', 'duration_label', 'employment_type_label', 'cluster']
+display_columns = ['description_text', 'description_conditions', 'working_hours_type_label', 'duration_label', 'employment_type_label', 'cluster']
 
 # Initialize a counter for the total number of job postings
 total_postings = 0

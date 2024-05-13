@@ -6,6 +6,12 @@ def flatten_json(json_obj, prefix=''):
     for key, value in json_obj.items():
         if isinstance(value, dict):
             flat_data.update(flatten_json(value, prefix + key + '_'))
+        elif isinstance(value, list):
+            for index, item in enumerate(value):
+                if isinstance(item, dict):
+                    flat_data.update(flatten_json(item, prefix + key + f'_{index}_'))
+                else:
+                    flat_data[prefix + key + f'_{index}'] = item
         else:
             flat_data[prefix + key] = value
     return flat_data
@@ -16,12 +22,15 @@ output_file = '2023.csv'
 with open(input_file, 'r', encoding='utf-8') as jsonl_file, \
         open(output_file, 'w', newline='', encoding='utf-8') as csv_file:
     csv_writer = csv.DictWriter(csv_file, fieldnames=None)  # Field names will be dynamically determined
+    first_line = True
     for line in jsonl_file:
         json_obj = json.loads(line)
-        if csv_writer.fieldnames is None:
+        flattened_json = flatten_json(json_obj)
+        if first_line:
             # Determine field names dynamically from the first JSON object
-            csv_writer.fieldnames = flatten_json(json_obj).keys()
+            csv_writer.fieldnames = flattened_json.keys()
             csv_writer.writeheader()
+            first_line = False
         # Handle encoding errors by ignoring problematic characters
         csv_writer.writerow({k: v.encode('utf-8', 'ignore').decode('utf-8') if isinstance(v, str) else v
-                             for k, v in flatten_json(json_obj).items()})
+                             for k, v in flattened_json.items()})

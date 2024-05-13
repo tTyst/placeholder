@@ -4,7 +4,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.cluster import AgglomerativeClustering
 
 # Definiera nyckelord för filtrering
-keywords = ['restaurang', 'kock', 'servitör', 'servitris', 'bartender', 'diskare']
+keywords = ['restaurang', 'kock', 'servitör', 'servitris', 'bartender', 'diskare', "hotell"]
 
 # Funktion för att extrahera säkert från JSON-struktur med listor
 def extract_label_from_list(data):
@@ -18,7 +18,6 @@ def extract_label_from_dict(data):
         return data.get('label', None)
     return None
 
-# Funktion för att extrahera säkert från JSON-struktur med listor
 def extract_conditions_from_dict(data):
     if isinstance(data, dict):
         return data.get('conditions', None)
@@ -62,13 +61,13 @@ encoded_df = pd.DataFrame(encoded_data, columns=encoder.get_feature_names_out())
 scaler = StandardScaler()
 scaled_features = scaler.fit_transform(encoded_df)
 
-# Agglomerative Clustering OBS! ändra n_clusters baserat på hur många kluster man vill skapa
+# Agglomerative Clustering
 agg_cluster = AgglomerativeClustering(n_clusters=4)
 clusters = agg_cluster.fit_predict(scaled_features)
 filtered_df['cluster'] = clusters
 
 # Spara resultatet
-output_file = 'filter_by_employ_23.csv'
+output_file = 'filter_by_employ_23_restaurang.csv'
 filtered_df.to_csv(output_file, index=False)
 
 # Skriv ut ett framgångsmeddelande

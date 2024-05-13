@@ -24,7 +24,7 @@ st.markdown(css_code, unsafe_allow_html=True)
 
 # Initialize the session state for page management if not already set
 if 'page' not in st.session_state:
-    st.session_state.page = 'Placeholder 1'
+    st.session_state.page = 'Home page'
 
 # Main content
 st.header("Vega Bryggeri Dashboard")
@@ -32,7 +32,6 @@ st.markdown("With this dashboard, the goal is to provide Vega Bryggeri with insi
 
 # Load data function
 @st.cache_data()
-
 def load_data(year):
     # Get the directory of the current script
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -156,8 +155,8 @@ def get_combined_percentage_change_data():
 # Sidebar
 st.sidebar.title("Menu")
 # Buttons for page navigation
-if st.sidebar.button("Placeholder 1"):
-    st.session_state.page = 'Placeholder 1'
+if st.sidebar.button("Home page"):
+    st.session_state.page = 'Home page'
 if st.sidebar.button("Placeholder 2"):
     st.session_state.page = 'Placeholder 2'
 if st.sidebar.button("Systembolaget data"):
@@ -204,27 +203,31 @@ if st.session_state.page == "Systembolaget data":
         title='Annual Market Share Change Percentage compared to previous year',
         color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b', '#30e3ca']  # Cerulean Blue, Coral Red, Mustard Yellow, Teal
 )
-
         # Adjust figure size and x-axis range
         fig3.update_layout(
-            width=965,  # Adjust width to your preference
+            legend=dict(
+                title='Click to hide/show:',  # Adding a title to the legend
+            ),
+            yaxis=dict(
+                zeroline=True,  # Ensure the zero line is visible
+                zerolinewidth=1,  # Make the zero line more visible
+                zerolinecolor='grey',  # Set zero line color
+                gridcolor="grey"
+            ),
             xaxis=dict(
                 range=[2018, 2023.],  # Extend range beyond your actual data for padding
                 tickvals=[2018, 2019, 2020, 2021, 2022, 2023],  # Explicitly set tick values to ensure they appear
             ),
-            yaxis=dict(
-                gridcolor="grey"
-        )
-        )
+            width=965  # Adjust width to your preference
+)
+
+
 
         st.plotly_chart(fig3, use_container_width=False)  # Set use_container_width to False to use manual width
         st.dataframe(percentage_data[['Year', 'Vega Bryggeri Change %', 'Total Market Change %', 'Similar Gothenburg Breweries Change %', 'Non-Gothenburg Breweries Change %']])
 
 
-
-
-
-if st.session_state.page == "Placeholder 1":
+if st.session_state.page == "Home page":
     st.write("Information about Vega Bryggeri.")
 
 if st.session_state.page == "Placeholder 2":

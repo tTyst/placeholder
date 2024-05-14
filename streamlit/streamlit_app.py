@@ -2,7 +2,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import numpy as np
 import os
+import calendar
 
 # CSS to import the font from Google Fonts and apply it
 font_url = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap'
@@ -165,8 +167,8 @@ st.sidebar.title("Menu")
 # Buttons for page navigation
 if st.sidebar.button("Home page"):
     st.session_state.page = 'Home page'
-if st.sidebar.button("Placeholder 2"):
-    st.session_state.page = 'Placeholder 2'
+if st.sidebar.button("Job Postings Data"):
+    st.session_state.page = 'Job Postings Data'
 if st.sidebar.button("Systembolaget data"):
     st.session_state.page = 'Systembolaget data'
 if st.sidebar.button("Placeholder 3"):
@@ -238,7 +240,7 @@ if st.session_state.page == "Systembolaget data":
 if st.session_state.page == "Home page":
     st.write("Information about Vega Bryggeri.")
 
-if st.session_state.page == "Placeholder 2":
+if st.session_state.page == "Job Postings Data":
     st.subheader("Job Data Analysis")
 
     tab1, tab2 = st.tabs(["Employment type Timeline", "Other Analysis"])
@@ -273,7 +275,8 @@ if st.session_state.page == "Placeholder 2":
         # Create a line chart for the clusters over time
         fig = px.line(full_cluster_counts, x='Year-Quarter', y='Count', color='Employment type', 
                       title='Employment type Timeline Over Quarters',
-                      labels={'Year-Quarter': 'Year-Quarter', 'Count': 'Count', 'Employment type': 'Employment type'})
+                      labels={'Year-Quarter': 'Year-Quarter', 'Count': 'Count', 'Employment type': 'Employment type'},
+                      color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b', '#30e3ca'])
 
         fig.update_xaxes(
             tickangle=45,
@@ -281,6 +284,25 @@ if st.session_state.page == "Placeholder 2":
             tickformat='%Y-Q%q'
         )
         
+        double_tick_vals = np.arange(0, 25, 1)
+
+        fig.update_layout(
+            legend=dict(
+                title='Click to hide/show:',  # Adding a title to the legend
+            ),
+            yaxis=dict(
+                zerolinewidth=1,  # Make the zero line more visible
+                zerolinecolor='grey',  # Set zero line color
+                gridcolor="rgba(128, 128, 128, 0.5)"  # Set grid line color with 50% opacity
+            ),
+            xaxis=dict(
+                showgrid=True,  # Enable grid lines for the x-axis
+                gridcolor="rgba(128, 128, 128, 0.5)",  # Set the grid line color with 50% opacity
+                gridwidth=1,  # Set the grid line width
+                tickvals=double_tick_vals,  # Set custom tick positions
+            )
+        )
+      
         st.plotly_chart(fig, use_container_width=True)
 
         # Sort the years before displaying in the selectbox
@@ -291,12 +313,16 @@ if st.session_state.page == "Placeholder 2":
         # Display the month-wise data in a pie chart
         st.write("Monthly Data")
         monthly_counts = filtered_data.groupby(['Year-Month', 'Employment type']).size().reset_index(name='Count')
-        selected_month = st.selectbox('Select Month to Filter Data', monthly_counts['Year-Month'].unique())
-        month_filtered_data = monthly_counts[monthly_counts['Year-Month'] == selected_month]
+
+        # Create a dictionary to map "YYYY-MM" to the month name
+        monthly_counts['Month'] = monthly_counts['Year-Month'].apply(lambda x: calendar.month_name[int(x[-2:])])
+
+        selected_month = st.selectbox('Select Month to Filter Data', monthly_counts['Month'].unique())
+        month_filtered_data = monthly_counts[monthly_counts['Month'] == selected_month]
 
         # Create pie chart
         pie_fig = go.Figure(data=[go.Pie(labels=month_filtered_data['Employment type'], values=month_filtered_data['Count'], textinfo='label+percent', insidetextorientation='radial')])
-        pie_fig.update_layout(title_text=f'Distribution of Employment Types for {selected_year}-{selected_month}')
+        pie_fig.update_layout(title_text=f'Distribution of Employment Types for {selected_month}')
 
         st.plotly_chart(pie_fig, use_container_width=True)
 

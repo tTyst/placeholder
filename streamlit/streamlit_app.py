@@ -4,21 +4,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 import os
 
-st.write("Theme should be applied now")
-config_path = os.path.abspath(".streamlit/config.toml")
-st.write("Config path:", config_path)
-
-if os.path.exists(config_path):
-    st.write("Config file found!")
-else:
-    st.write("Config file not found!")
-    st.write("Current working directory:", os.getcwd())
-    st.write("Directory listing:", os.listdir('.'))
-    if os.path.exists('.streamlit'):
-        st.write("'.streamlit' directory listing:", os.listdir('.streamlit'))
-    if os.path.exists('/mount/src/placeholder'):
-        st.write("'/mount/src/placeholder' directory listing:", os.listdir('/mount/src/placeholder'))
-
 # CSS to import the font from Google Fonts and apply it
 font_url = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap'
 css_code = f"""

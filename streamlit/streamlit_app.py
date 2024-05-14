@@ -5,7 +5,13 @@ import plotly.graph_objects as go
 import os
 
 st.write("Theme should be applied now")
-st.write("Config path:", os.path.abspath(".streamlit/config.toml"))
+config_path = os.path.abspath(".streamlit/config.toml")
+st.write("Config path:", config_path)
+
+if os.path.exists(config_path):
+    st.write("Config file found!")
+else:
+    st.write("Config file not found!")
 
 # CSS to import the font from Google Fonts and apply it
 font_url = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap'

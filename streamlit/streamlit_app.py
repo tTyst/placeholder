@@ -16,11 +16,8 @@ else:
     st.write("Directory listing:", os.listdir('.'))
     if os.path.exists('.streamlit'):
         st.write("'.streamlit' directory listing:", os.listdir('.streamlit'))
-
-if os.path.exists(config_path):
-    st.write("Config file found!")
-else:
-    st.write("Config file not found!")
+    if os.path.exists('/mount/src/placeholder'):
+        st.write("'/mount/src/placeholder' directory listing:", os.listdir('/mount/src/placeholder'))
 
 # CSS to import the font from Google Fonts and apply it
 font_url = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap'

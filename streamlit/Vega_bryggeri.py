@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import os
 
 # CSS to import the font from Google Fonts and apply it
@@ -50,6 +51,17 @@ def get_top_vega_bryggeri(data, top_n=50):
     filtered_data = data[data['Producentnamn'] == 'Vega Bryggeri']
     top_sales = filtered_data.sort_values(by='Försäljning i liter', ascending=False).head(top_n)
     return top_sales
+
+
+@st.cache_data()
+def load_combined_job_data():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    file_path = os.path.join(dir_path, "CCC_datechange.csv")
+    data = pd.read_csv(file_path)
+    data['publication_date'] = pd.to_datetime(data['publication_date'], errors='coerce', infer_datetime_format=True)
+    data['year_month'] = data['publication_date'].dt.to_period('M').astype(str)
+    return data
+
 
 # Function to prepare comparative data
 def get_comparative_data():
@@ -148,10 +160,6 @@ def get_combined_percentage_change_data():
     return pd.DataFrame(results)
 
 
-
-
-
-
 # Sidebar
 st.sidebar.title("Menu")
 # Buttons for page navigation
@@ -231,7 +239,70 @@ if st.session_state.page == "Home page":
     st.write("Information about Vega Bryggeri.")
 
 if st.session_state.page == "Placeholder 2":
-    st.write("General data analysis section.")
+    st.subheader("Job Data Analysis")
+
+    tab1, tab2 = st.tabs(["Employment type Timeline", "Other Analysis"])
+
+    with tab1:
+        data = load_combined_job_data()
+        data['publication_date'] = pd.to_datetime(data['publication_date'], errors='coerce')
+        data['year_quarter'] = data['publication_date'].dt.to_period('Q').astype(str)
+        data['year_month'] = data['publication_date'].dt.to_period('M').astype(str)
+        data['year'] = data['publication_date'].dt.year
+
+        data.rename(columns={
+            'cluster': 'Employment type',
+            'publication_date': 'Publication Date',
+            'year_quarter': 'Year-Quarter',
+            'year_month': 'Year-Month',
+            'year': 'Year'
+        }, inplace=True)
+
+        data.dropna(subset=['Employment type', 'Publication Date'], inplace=True)
+
+        # Group by year_quarter and cluster, and count the number of rows for each group
+        cluster_counts = data.groupby(['Year-Quarter', 'Employment type']).size().reset_index(name='Count')
+
+        # Create a full range of Year-Quarters
+        all_quarters = pd.period_range(start=cluster_counts['Year-Quarter'].min(), end=cluster_counts['Year-Quarter'].max(), freq='Q').astype(str)
+        
+        # Create a dataframe with all possible combinations of Year-Quarters and Employment types
+        all_combinations = pd.MultiIndex.from_product([all_quarters, cluster_counts['Employment type'].unique()], names=['Year-Quarter', 'Employment type'])
+        full_cluster_counts = cluster_counts.set_index(['Year-Quarter', 'Employment type']).reindex(all_combinations, fill_value=0).reset_index()
+
+        # Create a line chart for the clusters over time
+        fig = px.line(full_cluster_counts, x='Year-Quarter', y='Count', color='Employment type', 
+                      title='Employment type Timeline Over Quarters',
+                      labels={'Year-Quarter': 'Year-Quarter', 'Count': 'Count', 'Employment type': 'Employment type'})
+
+        fig.update_xaxes(
+            tickangle=45,
+            nticks=20,
+            tickformat='%Y-Q%q'
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Sort the years before displaying in the selectbox
+        years = sorted(data['Year'].unique())
+        selected_year = st.selectbox('Select Year to Filter Monthly Data', years)
+        filtered_data = data[data['Year'] == selected_year]
+
+        # Display the month-wise data in a pie chart
+        st.write("Monthly Data")
+        monthly_counts = filtered_data.groupby(['Year-Month', 'Employment type']).size().reset_index(name='Count')
+        selected_month = st.selectbox('Select Month to Filter Data', monthly_counts['Year-Month'].unique())
+        month_filtered_data = monthly_counts[monthly_counts['Year-Month'] == selected_month]
+
+        # Create pie chart
+        pie_fig = go.Figure(data=[go.Pie(labels=month_filtered_data['Employment type'], values=month_filtered_data['Count'], textinfo='label+percent', insidetextorientation='radial')])
+        pie_fig.update_layout(title_text=f'Distribution of Employment Types for {selected_year}-{selected_month}')
+
+        st.plotly_chart(pie_fig, use_container_width=True)
+
+
+    with tab2:
+        st.write("Other analyses can go here.")
 
 if st.session_state.page == "Placeholder 3":
     st.write("Contact information.")

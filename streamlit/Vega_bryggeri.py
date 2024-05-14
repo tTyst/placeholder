@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import os
 
 st.write("Theme should be applied now")
-st.write(st.__version__)
+st.write("Config path:", os.path.abspath(".streamlit/config.toml"))
 
 # CSS to import the font from Google Fonts and apply it
 font_url = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap'

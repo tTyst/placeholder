@@ -1,8 +1,3 @@
-
-[app]
-main_module = "streamlit/Vega_bryggeri.py"
-
-
 [theme]
 primaryColor="#ffbf00"
 backgroundColor="#292929"

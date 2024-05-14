@@ -4,6 +4,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import os
 
+st.write("Theme should be applied now")
+
 # CSS to import the font from Google Fonts and apply it
 font_url = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap'
 css_code = f"""
@@ -58,7 +60,7 @@ def load_combined_job_data():
     dir_path = os.path.dirname(os.path.realpath(__file__))
     file_path = os.path.join(dir_path, "CCC_datechange.csv")
     data = pd.read_csv(file_path)
-    data['publication_date'] = pd.to_datetime(data['publication_date'], errors='coerce', infer_datetime_format=True)
+    data['publication_date'] = pd.to_datetime(data['publication_date'], errors='coerce')
     data['year_month'] = data['publication_date'].dt.to_period('M').astype(str)
     return data
 

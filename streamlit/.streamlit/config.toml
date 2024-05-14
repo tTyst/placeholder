@@ -1,7 +1,3 @@
-[server]
-headless = true
-port = $PORT
-enableCORS = false
 
 [app]
 main_module = "streamlit/Vega_bryggeri.py"

@@ -7,7 +7,23 @@ import os
 st.write("Theme should be applied now")
 st.write("Config path:", os.path.abspath(".streamlit/config.toml"))
 
+# CSS to import the font from Google Fonts and apply it
+font_url = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap'
+css_code = f"""
+<link href='{font_url}' rel='stylesheet'>
+<style>
+    html, body, h1, h2, h3, h4, h5, h6, p, div {{
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 400;  // Regular weight for body text
+    }}
+    h1, h2, h3, h4, h5, h6 {{
+        font-weight: 700;  // Bold weight for headings
+    }}
+</style>
+"""
 
+# Inject the CSS with the font into the Streamlit app
+st.markdown(css_code, unsafe_allow_html=True)
 
 
 # Initialize the session state for page management if not already set

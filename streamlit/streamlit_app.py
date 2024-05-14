@@ -331,7 +331,46 @@ if st.session_state.page == "Job Postings Data":
         st.write("Other analyses can go here.")
 
 if st.session_state.page == "Placeholder 3":
-    st.write("Contact information.")
+    # Load the cleaned Consumer Confidence Index data provided by the user
+        file_path = 'CCI_kategorier.xlsx'
+        cci_data_cleaned = pd.read_excel(file_path)
+
+        # Rename columns for clarity
+        cci_data_cleaned.columns = ['Indicator'] + pd.to_datetime(cci_data_cleaned.columns[1:]).tolist()
+
+        # Melt the dataframe to a long format
+        cci_data_long = cci_data_cleaned.melt(id_vars=['Indicator'], var_name='Date', value_name='Value')
+
+        # Convert the Date column to datetime format
+        cci_data_long['Date'] = pd.to_datetime(cci_data_long['Date'])
+
+        # Remove any leading/trailing spaces in the Indicator names
+        cci_data_long['Indicator'] = cci_data_long['Indicator'].str.strip()
+
+        # Filter out rows with missing 'Value' and 'Indicator'
+        cci_data_long = cci_data_long.dropna(subset=['Value', 'Indicator'])
+
+        # Convert 'Value' to numeric
+        cci_data_long['Value'] = pd.to_numeric(cci_data_long['Value'], errors='coerce')
+
+        # Display the cleaned data
+        st.write("Cleaned Consumer Confidence Index Data", cci_data_long.head())
+
+        # 1. Overall Trend Analysis
+        fig_trend = px.line(cci_data_long, x='Date', y='Value', color='Indicator', title='Consumer Confidence Index Over Time by Indicator')
+        st.plotly_chart(fig_trend)
+
+        # 2. Category Comparison
+        selected_date = st.selectbox('Select Date for Category Comparison', cci_data_long['Date'].unique())
+        fig_category_comparison = px.bar(cci_data_long[cci_data_long['Date'] == selected_date], x='Indicator', y='Value', title=f'Consumer Confidence Index by Category for {selected_date.strftime("%Y-%m-%d")}')
+        st.plotly_chart(fig_category_comparison)
+
+        # 3. Year-over-Year Change
+        cci_data_long['Year'] = cci_data_long['Date'].dt.year
+        cci_data_long['Quarter'] = cci_data_long['Date'].dt.to_period('Q').astype(str)
+
+        # Pivot table for year-over-year comparison
+        cci_pivot = cci_data_long.pivot_table(index=['Indicator', 'Quarter'], columns='Year', values='Value').reset_index()
 
 # Footer
 st.markdown("---")

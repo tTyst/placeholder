@@ -264,8 +264,12 @@ if st.session_state.page == "Systembolaget data":
                 """)
 
         percentage_data = get_combined_percentage_change_data()
+        
+        # Filter out the year 2018
+        percentage_data_filtered = percentage_data[percentage_data['Year'] != 2018]
+        
         fig3 = px.line(
-            percentage_data,
+            percentage_data_filtered,
             x='Year',
             y=['Vega Bryggeri Change %', 'Total Market Change %', 'Similar Gothenburg Breweries Change %', 'Non-Gothenburg Breweries Change %'],
             title='Annual Market Share Change Percentage compared to previous year',
@@ -283,14 +287,15 @@ if st.session_state.page == "Systembolaget data":
                 gridcolor="grey"
             ),
             xaxis=dict(
-                range=[2018, 2023],  # Extend range beyond your actual data for padding
-                tickvals=[2018, 2019, 2020, 2021, 2022, 2023],  # Explicitly set tick values to ensure they appear
+                range=[2019, 2023],  # Extend range beyond your actual data for padding
+                tickvals=[2019, 2020, 2021, 2022, 2023],  # Explicitly set tick values to ensure they appear
             ),
             width=965  # Adjust width to your preference
         )
 
         st.plotly_chart(fig3, use_container_width=False)  # Set use_container_width to False to use manual width
-        st.dataframe(percentage_data[['Year', 'Vega Bryggeri Change %', 'Total Market Change %', 'Similar Gothenburg Breweries Change %', 'Non-Gothenburg Breweries Change %']])
+        st.dataframe(percentage_data_filtered[['Year', 'Vega Bryggeri Change %', 'Total Market Change %', 'Similar Gothenburg Breweries Change %', 'Non-Gothenburg Breweries Change %']])
+
 
 
 if st.session_state.page == "Home page":
@@ -432,21 +437,21 @@ if st.session_state.page == "Placeholder 3":
     Below are analyses based on the CCI data. **100** is the baseline value for the index, with values above 100 indicating optimism.
     """)
 
-    # Use the quarter column for plotting
+    # Create the line plot
     fig_trend = px.line(cci_data_long, 
                         x='Quarter', y='Value',
                         color='Indicator', 
                         title='Consumer Confidence Index Over Time by Indicator',
                         color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b', '#30e3ca'])
 
-    fig_trend.add_shape(
-        type="line",
-        x0=min(cci_data_long['Quarter']),
-        x1=max(cci_data_long['Quarter']),
-        y0=100,
-        y1=100,
-        line=dict(color="LightSeaGreen", width=1, dash="dash")
-    )
+    # Add a trace for the 100 baseline to make it interactive
+    fig_trend.add_trace(go.Scatter(
+        x=cci_data_long['Quarter'],
+        y=[100] * len(cci_data_long),
+        mode='lines',
+        line=dict(color="LightSeaGreen", width=2, dash="dash"),
+        name='Baseline (100)'
+    ))
 
     st.plotly_chart(fig_trend)
 

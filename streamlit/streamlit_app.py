@@ -424,38 +424,42 @@ if st.session_state.page == "Job Postings Data":
         # Create the figure
         fig_with_forecast_range_corrected = go.Figure()
 
-        # Add traces for all job listings and Industry Related Job Listing
+        # Add traces for all job listings and restaurant job listings with markers
         fig_with_forecast_range_corrected.add_trace(go.Scatter(
             x=df_all_jobs['publication_date'],
             y=df_all_jobs['job_listings'],
-            mode='lines',
+            mode='lines+markers',
             name='All Job Listings',
-            line=dict(color='red')  # Set color for all job listings
+            line=dict(color='red', dash='solid'),
+            marker=dict(symbol='circle')
         ))
 
         fig_with_forecast_range_corrected.add_trace(go.Scatter(
             x=df_restaurant_jobs['publication_date'],
             y=df_restaurant_jobs['job_listings'],
-            mode='lines',
-            name='Industry Related Job Listing',
-            line=dict(color='green')  # Set color for Industry Related Job Listing
+            mode='lines+markers',
+            name='Restaurant Job Listings',
+            line=dict(color='green', dash='solid'),
+            marker=dict(symbol='square')
         ))
 
-        # Add traces for all job listings forecast and Industry Related Job Listing forecast
+        # Add traces for all job listings forecast and restaurant job listings forecast with different line styles
         fig_with_forecast_range_corrected.add_trace(go.Scatter(
             x=df_all_jobs['publication_date'],
             y=df_all_jobs['forecast'],
-            mode='lines',
+            mode='lines+markers',
             name='All Job Listings Forecast',
-            line=dict(dash='dash', color='indianred')  # Set color for all job listings forecast
+            line=dict(dash='dash', color='indianred'),
+            marker=dict(symbol='triangle-up')
         ))
 
         fig_with_forecast_range_corrected.add_trace(go.Scatter(
             x=df_restaurant_jobs['publication_date'],
             y=df_restaurant_jobs['forecast'],
-            mode='lines',
-            name='Industry Related Job Listing Forecast',
-            line=dict(dash='dash', color='lightgreen')  # Set color for Industry Related Job Listing forecast
+            mode='lines+markers',
+            name='Restaurant Job Listings Forecast',
+            line=dict(dash='dash', color='lightgreen'),
+            marker=dict(symbol='diamond')
         ))
 
         # Update layout with the specified date range
@@ -468,16 +472,24 @@ if st.session_state.page == "Job Postings Data":
                 tickangle=-45,
                 dtick="M1",  # setting the tick interval to monthly for the specific range
                 tickformat="%Y-%m",
-                range=[start_date, end_date]
+                range=[start_date, end_date],
+                showgrid=True,  # Show gridlines for x-axis
+                gridwidth=0.1,
+                gridcolor='Gray'
             ),
             yaxis=dict(
-                tickformat=",d"
+                type='log',  # Set y-axis to logarithmic scale
+                tickformat=",d",
+                title='Job Listings (log scale)',
+                showgrid=True,  # Show gridlines for y-axis
+                gridwidth=0.1,
+                gridcolor='Gray'
             ),
-            hovermode='x unified'
+            template='plotly_white',
+            hovermode='x unified'  # Set hover mode to 'x unified'
         )
 
         st.plotly_chart(fig_with_forecast_range_corrected)
-
 if st.session_state.page == "Placeholder 3":
     # Get the directory of the current script
     current_dir = os.path.dirname(os.path.abspath(__file__))

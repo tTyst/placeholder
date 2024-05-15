@@ -7,28 +7,57 @@ import os
 import calendar
 
 st.set_page_config(
-   page_title="Vega Bryggeri Dashboard",
-   page_icon=":beer:",
-   initial_sidebar_state="expanded",
+    page_title="Vega Bryggeri Dashboard",
+    page_icon=":beers:",
+    initial_sidebar_state="expanded",
 )
 
 # CSS to import the font from Google Fonts and apply it
-font_url = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap'
-css_code = f"""
-<link href='{font_url}' rel='stylesheet'>
+css_code = """
 <style>
-    html, body, h1, h2, h3, h4, h5, h6, p, div {{
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+    @import url('https://fonts.cdnfonts.com/css/helvetica-neue-5?styles=103502');
+    
+    html, body, p, div {
         font-family: 'Montserrat', sans-serif;
         font-weight: 400;  // Regular weight for body text
-    }}
-    h1, h2, h3, h4, h5, h6 {{
-        font-weight: 700;  // Bold weight for headings
-    }}
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 700;  // Bold weight for headings;
+        font-family: 'Helvetica Neue', sans-serif;
+    }
+    /* Ensure all h3 elements with IDs and their nested spans use the correct font */
+    h3[id], h3[id] span {
+        font-family: 'Helvetica Neue', sans-serif !important;
+    }
+    
+ 
+    #vega-bryggeri-dashboard {
+        position: relative;
+        font-family: 'Helvetica Neue', sans-serif;
+        font-size: 57px;
+        font-weight: 700;
+        margin: 0;
+        color: transparent; /* Hide the original text */
+    }
+    
+    #vega-bryggeri-dashboard::before {
+        content: 'Vega Bryggeri Dashboard';
+        position: absolute;
+        top: 55px;
+        left: 0;
+        background: linear-gradient(-135deg, #f670c1, #ffcc90);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+    }
 </style>
 """
 
-# Inject the CSS with the font into the Streamlit app
 st.markdown(css_code, unsafe_allow_html=True)
+
 
 
 # Initialize the session state for page management if not already set

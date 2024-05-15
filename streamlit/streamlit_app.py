@@ -180,12 +180,11 @@ if st.sidebar.button("Placeholder 3"):
 # Display content based on the current page
 if st.session_state.page == "Placeholder 3":
     # Get the directory of the current script
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    file_all_jobs = os.path.join(base_dir, 'forecast_data.csv')
-    file_restaurant_jobs = os.path.join(base_dir, 'forecast_data_restaurant.csv')
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, 'CCI_kategorier.xlsx')
 
     # Load the Consumer Confidence Index data provided by the user
-    cci_data_cleaned = pd.read_excel(base_dir)
+    cci_data_cleaned = pd.read_excel(file_path)
 
     # Rename columns for clarity
     cci_data_cleaned.columns = ['Indicator'] + pd.to_datetime(cci_data_cleaned.columns[1:]).tolist()
@@ -405,9 +404,9 @@ if st.session_state.page == "Job Postings Data":
         You can **deselect certain lines** in the legend to get a clearer view of specific data.
         """)
 
-        # Load the CSV files
-        file_all_jobs = 'forecast_data.csv'
-        file_restaurant_jobs = 'forecast_data_restaurant.csv'
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        file_all_jobs = os.path.join(base_dir, 'forecast_data.csv')
+        file_restaurant_jobs = os.path.join(base_dir, 'forecast_data_restaurant.csv')
 
         # Manually specify the correct columns and ignore extraneous columns
         correct_columns = ['publication_date', 'job_listings', 'forecast']
@@ -474,7 +473,7 @@ if st.session_state.page == "Job Postings Data":
             yaxis=dict(
                 tickformat=",d"
             ),
-            hovermode='x unified'
+            template='plotly_white'
         )
 
         st.plotly_chart(fig_with_forecast_range_corrected)

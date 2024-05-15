@@ -392,7 +392,7 @@ if st.session_state.page == "Job Postings Data":
 
         # Create pie chart
         pie_fig = go.Figure(data=[go.Pie(labels=month_filtered_data['Employment type'], values=month_filtered_data['Count'], textinfo='label+percent', insidetextorientation='radial')])
-        pie_fig.update_layout(title_text=f'Distribution of Employment Types for {selected_month}')
+        pie_fig.update_layout(title_text=f'Distribution of Employment Types for {selected_month}', title_y=0.98)
 
         st.plotly_chart(pie_fig, use_container_width=True)
 

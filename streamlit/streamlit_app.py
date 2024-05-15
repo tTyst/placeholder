@@ -174,16 +174,16 @@ if st.sidebar.button("Job Postings Data"):
     st.session_state.page = 'Job Postings Data'
 if st.sidebar.button("Systembolaget data"):
     st.session_state.page = 'Systembolaget data'
-if st.sidebar.button("Consumer Confidence Index Data"):
-    st.session_state.page = 'Consumer Confidence Index Data'
+if st.sidebar.button("CCI Data"):
+    st.session_state.page = 'CCI Data'
 
 # Display content based on the current page
-if st.session_state.page == "Consumer Confidence Index Data":
+if st.session_state.page == "CCI Data":
     # Get the directory of the current script
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(current_dir, 'CCI_kategorier.xlsx')
 
-    # Load the Consumer Confidence Index data provided by the user
+    # Load the CCI Data provided by the user
     cci_data_cleaned = pd.read_excel(file_path)
 
     # Rename columns for clarity
@@ -489,12 +489,12 @@ if st.session_state.page == "Job Postings Data":
 
         st.plotly_chart(fig_with_forecast_range_corrected)
 
-if st.session_state.page == "Consumer Confidence Index Data":
+if st.session_state.page == "CCI Data":
     # Get the directory of the current script
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(current_dir, 'CCI_kategorier.xlsx')
 
-    # Load the Consumer Confidence Index data provided by the user
+    # Load the CCI Data provided by the user
     cci_data_cleaned = pd.read_excel(file_path)
 
     # Rename columns for clarity

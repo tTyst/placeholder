@@ -424,7 +424,7 @@ if st.session_state.page == "Job Postings Data":
         # Create the figure
         fig_with_forecast_range_corrected = go.Figure()
 
-        # Add traces for all job listings and restaurant job listings
+        # Add traces for all job listings and Industry Related Job Listing
         fig_with_forecast_range_corrected.add_trace(go.Scatter(
             x=df_all_jobs['publication_date'],
             y=df_all_jobs['job_listings'],
@@ -437,11 +437,11 @@ if st.session_state.page == "Job Postings Data":
             x=df_restaurant_jobs['publication_date'],
             y=df_restaurant_jobs['job_listings'],
             mode='lines',
-            name='Restaurant Job Listings',
-            line=dict(color='green')  # Set color for restaurant job listings
+            name='Industry Related Job Listing',
+            line=dict(color='green')  # Set color for Industry Related Job Listing
         ))
 
-        # Add traces for all job listings forecast and restaurant job listings forecast
+        # Add traces for all job listings forecast and Industry Related Job Listing forecast
         fig_with_forecast_range_corrected.add_trace(go.Scatter(
             x=df_all_jobs['publication_date'],
             y=df_all_jobs['forecast'],
@@ -454,8 +454,8 @@ if st.session_state.page == "Job Postings Data":
             x=df_restaurant_jobs['publication_date'],
             y=df_restaurant_jobs['forecast'],
             mode='lines',
-            name='Restaurant Job Listings Forecast',
-            line=dict(dash='dash', color='lightgreen')  # Set color for restaurant job listings forecast
+            name='Industry Related Job Listing Forecast',
+            line=dict(dash='dash', color='lightgreen')  # Set color for Industry Related Job Listing forecast
         ))
 
         # Update layout with the specified date range
@@ -473,7 +473,7 @@ if st.session_state.page == "Job Postings Data":
             yaxis=dict(
                 tickformat=",d"
             ),
-            template='plotly_white'
+            hovermode='x unified'
         )
 
         st.plotly_chart(fig_with_forecast_range_corrected)

@@ -174,11 +174,11 @@ if st.sidebar.button("Job Postings Data"):
     st.session_state.page = 'Job Postings Data'
 if st.sidebar.button("Systembolaget data"):
     st.session_state.page = 'Systembolaget data'
-if st.sidebar.button("Placeholder 3"):
-    st.session_state.page = 'Placeholder 3'
+if st.sidebar.button("Consumer Confidence Index Data"):
+    st.session_state.page = 'Consumer Confidence Index Data'
 
 # Display content based on the current page
-if st.session_state.page == "Placeholder 3":
+if st.session_state.page == "Consumer Confidence Index Data":
     # Get the directory of the current script
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(current_dir, 'CCI_kategorier.xlsx')
@@ -489,7 +489,7 @@ if st.session_state.page == "Job Postings Data":
 
         st.plotly_chart(fig_with_forecast_range_corrected)
 
-if st.session_state.page == "Placeholder 3":
+if st.session_state.page == "Consumer Confidence Index Data":
     # Get the directory of the current script
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(current_dir, 'CCI_kategorier.xlsx')

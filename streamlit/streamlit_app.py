@@ -229,7 +229,7 @@ if st.session_state.page == "Placeholder 3":
         x1=cci_data_long['Quarter'].max(),
         y0=100,
         y1=100,
-        line=dict(color="LightSeaGreen", width=3, dash="dashdot")
+        line=dict(color="LightSeaGreen", width=3, dash="dash")
     )
 
     st.plotly_chart(fig_trend)

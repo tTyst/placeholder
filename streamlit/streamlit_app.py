@@ -305,7 +305,7 @@ if st.session_state.page == "Home page":
 if st.session_state.page == "Job Postings Data":
     st.subheader("Job Data Analysis")
 
-    tab1, tab2 = st.tabs(["Employment type Timeline", "Other Analysis"])
+    tab1, tab2 = st.tabs(["Employment type Timeline", "Job Listings Prognosis"])
 
     with tab1:
         data = load_combined_job_data()
@@ -397,8 +397,86 @@ if st.session_state.page == "Job Postings Data":
         st.plotly_chart(pie_fig, use_container_width=True)
 
 
-    with tab2:
-        st.write("Other analyses can go here.")
+with tab2:
+    st.write("""
+    ### Job Listings and Forecasts Over Time
+    This graph shows the job listings and forecasts for all job postings and specifically for the restaurant business. 
+    You can **deselect certain lines** in the legend to get a clearer view of specific data.
+    """)
+
+    # Load the CSV files
+    file_all_jobs = 'forecast_data.csv'
+    file_restaurant_jobs = 'forecast_data_restaurant.csv'
+
+    # Manually specify the correct columns and ignore extraneous columns
+    correct_columns = ['publication_date', 'job_listings', 'forecast']
+    df_all_jobs = pd.read_csv(file_all_jobs, usecols=[0, 1, 2], names=correct_columns, header=0)
+    df_restaurant_jobs = pd.read_csv(file_restaurant_jobs, usecols=[0, 1, 2], names=correct_columns, header=0)
+
+    # Convert publication_date to datetime
+    df_all_jobs['publication_date'] = pd.to_datetime(df_all_jobs['publication_date'], errors='coerce')
+    df_restaurant_jobs['publication_date'] = pd.to_datetime(df_restaurant_jobs['publication_date'], errors='coerce')
+
+    # Filter the data within the specified date range
+    start_date = '2023-12-01'
+    end_date = '2024-06-30'
+
+    # Create the figure
+    fig_with_forecast_range_corrected = go.Figure()
+
+    # Add traces for all job listings and restaurant job listings
+    fig_with_forecast_range_corrected.add_trace(go.Scatter(
+        x=df_all_jobs['publication_date'],
+        y=df_all_jobs['job_listings'],
+        mode='lines',
+        name='All Job Listings',
+        line=dict(color='red')  # Set color for all job listings
+    ))
+
+    fig_with_forecast_range_corrected.add_trace(go.Scatter(
+        x=df_restaurant_jobs['publication_date'],
+        y=df_restaurant_jobs['job_listings'],
+        mode='lines',
+        name='Restaurant Job Listings',
+        line=dict(color='green')  # Set color for restaurant job listings
+    ))
+
+    # Add traces for all job listings forecast and restaurant job listings forecast
+    fig_with_forecast_range_corrected.add_trace(go.Scatter(
+        x=df_all_jobs['publication_date'],
+        y=df_all_jobs['forecast'],
+        mode='lines',
+        name='All Job Listings Forecast',
+        line=dict(dash='dash', color='indianred')  # Set color for all job listings forecast
+    ))
+
+    fig_with_forecast_range_corrected.add_trace(go.Scatter(
+        x=df_restaurant_jobs['publication_date'],
+        y=df_restaurant_jobs['forecast'],
+        mode='lines',
+        name='Restaurant Job Listings Forecast',
+        line=dict(dash='dash', color='lightgreen')  # Set color for restaurant job listings forecast
+    ))
+
+    # Update layout with the specified date range
+    fig_with_forecast_range_corrected.update_layout(
+        title='Job Listings and Forecasts Over Time (From December 2023)',
+        xaxis_title='Publication Date',
+        yaxis_title='Job Listings',
+        legend_title='Job Type',
+        xaxis=dict(
+            tickangle=-45,
+            dtick="M1",  # setting the tick interval to monthly for the specific range
+            tickformat="%Y-%m",
+            range=[start_date, end_date]
+        ),
+        yaxis=dict(
+            tickformat=",d"
+        ),
+        hovermode='x unified'
+    )
+
+    st.plotly_chart(fig_with_forecast_range_corrected)
 
 if st.session_state.page == "Placeholder 3":
     # Get the directory of the current script

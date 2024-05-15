@@ -207,33 +207,6 @@ if st.session_state.page == "Placeholder 3":
     # Add a quarter column and convert to string format
     cci_data_long['Quarter'] = cci_data_long['Date'].dt.to_period('Q').astype(str)
 
-    # Add context text
-    st.markdown("""
-    ### Consumer Confidence Index Data
-    The **Consumer Confidence Index (CCI)** measures the level of optimism that consumers feel about the overall state of the economy 
-    and their personal financial situation. This data is crucial for understanding consumer behavior and economic trends.
-    Below are analyses based on the CCI data.
-    """)
-
-    # Create the line plot
-    fig_trend = px.line(cci_data_long, 
-                        x='Quarter', y='Value',
-                        color='Indicator', 
-                        title='Consumer Confidence Index Over Time by Indicator',
-                        color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b', '#30e3ca'])
-
-    # Add a horizontal line at the value 100
-    fig_trend.add_shape(
-        type="line",
-        x0=cci_data_long['Quarter'].min(),
-        x1=cci_data_long['Quarter'].max(),
-        y0=100,
-        y1=100,
-        line=dict(color="LightSeaGreen", width=3, dash="dash")
-    )
-
-    st.plotly_chart(fig_trend)
-
 
 if st.session_state.page == "Systembolaget data":
     st.subheader("Systembolaget data Dashboard")

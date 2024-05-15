@@ -331,8 +331,12 @@ if st.session_state.page == "Job Postings Data":
         st.write("Other analyses can go here.")
 
 if st.session_state.page == "Placeholder 3":
-    # Load the cleaned Consumer Confidence Index data provided by the user
-        file_path = 'CCI_kategorier.xlsx'
+        # Load the cleaned Consumer Confidence Index data provided by the user
+        # Get the directory of the current script
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(current_dir, 'CCI_kategorier.xlsx')
+
+        # Load the Consumer Confidence Index data provided by the user
         cci_data_cleaned = pd.read_excel(file_path)
 
         # Rename columns for clarity

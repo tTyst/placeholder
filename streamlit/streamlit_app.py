@@ -180,11 +180,12 @@ if st.sidebar.button("Placeholder 3"):
 # Display content based on the current page
 if st.session_state.page == "Placeholder 3":
     # Get the directory of the current script
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(current_dir, 'CCI_kategorier.xlsx')
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_all_jobs = os.path.join(base_dir, 'forecast_data.csv')
+    file_restaurant_jobs = os.path.join(base_dir, 'forecast_data_restaurant.csv')
 
     # Load the Consumer Confidence Index data provided by the user
-    cci_data_cleaned = pd.read_excel(file_path)
+    cci_data_cleaned = pd.read_excel(base_dir)
 
     # Rename columns for clarity
     cci_data_cleaned.columns = ['Indicator'] + pd.to_datetime(cci_data_cleaned.columns[1:]).tolist()

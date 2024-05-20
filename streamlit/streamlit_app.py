@@ -222,19 +222,17 @@ def get_combined_percentage_change_data():
 
     return pd.DataFrame(results)
 
-
+st.sidebar.markdown("<div id='spacer' style='height: 10px;'></div>", unsafe_allow_html=True)
 # Sidebar
 st.sidebar.title("Tools")
 # Buttons for page navigation
-if st.sidebar.button("Home"):
-    st.session_state.page = 'Home'
 if st.sidebar.button("Market Analytics"):
     st.session_state.page = 'Job Postings Data'
 if st.sidebar.button("Systembolaget Sales"):
     st.session_state.page = 'Systembolaget Sales'
 
 # Add an empty space that will grow to push the bottom section down
-st.sidebar.markdown("<div id='spacer' style='height: 200px;'></div>", unsafe_allow_html=True)
+st.sidebar.markdown("<div id='spacer' style='height: 250px;'></div>", unsafe_allow_html=True)
 
 # Add the widget that should be at the bottom
 st.sidebar.title("Info")

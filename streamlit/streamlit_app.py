@@ -426,6 +426,8 @@ if st.session_state.page == "Job Postings Data":
         st.plotly_chart(pie_fig, use_container_width=True)
 
 
+
+
     with tab2:
         st.write("""
         ### Job Listings and Forecasts Over Time
@@ -438,9 +440,9 @@ if st.session_state.page == "Job Postings Data":
         file_restaurant_jobs = os.path.join(base_dir, 'forecast_data_restaurant.csv')
 
         # Manually specify the correct columns and ignore extraneous columns
-        correct_columns = ['publication_date', 'job_listings', 'forecast']
-        df_all_jobs = pd.read_csv(file_all_jobs, usecols=[0, 1, 2], names=correct_columns, header=0)
-        df_restaurant_jobs = pd.read_csv(file_restaurant_jobs, usecols=[0, 1, 2], names=correct_columns, header=0)
+        correct_columns = ['publication_date', 'job_listings', 'forecast', 'lower', 'upper']
+        df_all_jobs = pd.read_csv(file_all_jobs, usecols=[0, 1, 2, 3, 4], names=correct_columns, header=0)
+        df_restaurant_jobs = pd.read_csv(file_restaurant_jobs, usecols=[0, 1, 2, 3, 4], names=correct_columns, header=0)
 
         # Convert publication_date to datetime
         df_all_jobs['publication_date'] = pd.to_datetime(df_all_jobs['publication_date'], errors='coerce')
@@ -460,7 +462,6 @@ if st.session_state.page == "Job Postings Data":
             mode='lines',
             name='All Job Listings',
             line=dict(color='red', dash='solid'),
-         
         ))
 
         fig_with_forecast_range_corrected.add_trace(go.Scatter(
@@ -469,7 +470,6 @@ if st.session_state.page == "Job Postings Data":
             mode='lines',
             name='Industry Related Job Listing',
             line=dict(color='green', dash='solid'),
-          
         ))
 
         # Add traces for all job listings forecast and Industry Related Job Listing forecast with different line styles
@@ -479,7 +479,6 @@ if st.session_state.page == "Job Postings Data":
             mode='lines',
             name='All Job Listings Forecast',
             line=dict(dash='dash', color='indianred'),
-            
         ))
 
         fig_with_forecast_range_corrected.add_trace(go.Scatter(
@@ -488,10 +487,33 @@ if st.session_state.page == "Job Postings Data":
             mode='lines',
             name='Industry Related Job Listing Forecast',
             line=dict(dash='dash', color='lightgreen'),
-            
         ))
 
-        # Update layout with the specified date range
+        # Add confidence interval for all job listings
+        fig_with_forecast_range_corrected.add_trace(go.Scatter(
+            x=df_all_jobs['publication_date'].tolist() + df_all_jobs['publication_date'].tolist()[::-1],
+            y=df_all_jobs['upper'].tolist() + df_all_jobs['lower'].tolist()[::-1],
+            fill='toself',
+            fillcolor='rgba(255, 0, 0, 0.2)',
+            line=dict(color='rgba(255, 0, 0, 0)'),
+            hoverinfo="skip",
+            showlegend=False,
+            name='Confidence Interval All Jobs'
+        ))
+
+        # Add confidence interval for industry related job listings
+        fig_with_forecast_range_corrected.add_trace(go.Scatter(
+            x=df_restaurant_jobs['publication_date'].tolist() + df_restaurant_jobs['publication_date'].tolist()[::-1],
+            y=df_restaurant_jobs['upper'].tolist() + df_restaurant_jobs['lower'].tolist()[::-1],
+            fill='toself',
+            fillcolor='rgba(0, 255, 0, 0.2)',
+            line=dict(color='rgba(0, 255, 0, 0)'),
+            hoverinfo="skip",
+            showlegend=False,
+            name='Confidence Interval Industry Jobs'
+        ))
+
+        # Update layout with the specified date range and log scale for y-axis
         fig_with_forecast_range_corrected.update_layout(
             title='Job Listings and Forecasts Over Time',
             xaxis_title='Publication Date',
@@ -504,19 +526,20 @@ if st.session_state.page == "Job Postings Data":
                 range=[start_date, end_date],
                 showgrid=True,  # Show gridlines for x-axis
                 gridwidth=1,
-                
             ),
             yaxis=dict(
+                type='log',  # Set the y-axis to a log scale
                 tickformat=",d",
                 title='Job Listings',
                 showgrid=True,  # Show gridlines for y-axis
                 gridwidth=2,
-                
             ),
             hovermode='x unified'  # Set hover mode to 'x unified'
         )
 
         st.plotly_chart(fig_with_forecast_range_corrected)
+
+
 
 if st.session_state.page == "CCI Data":
     # Get the directory of the current script

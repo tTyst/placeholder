@@ -32,7 +32,6 @@ css_code = """
         font-family: 'Helvetica Neue', sans-serif !important;
     }
     
- 
     #vega-bryggeri-dashboard {
         position: relative;
         font-family: 'Helvetica Neue', sans-serif;
@@ -57,7 +56,6 @@ css_code = """
 """
 
 st.markdown(css_code, unsafe_allow_html=True)
-
 
 
 # Initialize the session state for page management if not already set
@@ -97,6 +95,14 @@ def load_combined_job_data():
     return data
 
 
+@st.cache_data()
+def load_cci_data():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    file_path = os.path.join(dir_path, 'CCI_kategorier.xlsx')
+    data = pd.read_excel(file_path)
+    return data
+
+
 # Function to prepare comparative data
 def get_comparative_data():
     years = [2018, 2019, 2020, 2021, 2022, 2023]
@@ -106,6 +112,7 @@ def get_comparative_data():
         total_sales = data[data['Producentnamn'] == 'Vega Bryggeri']['Försäljning i liter'].sum()
         frames.append(pd.DataFrame({'Year': [year], 'Sales in liters': [total_sales]}))
     return pd.concat(frames)
+
 
 def get_combined_percentage_change_data():
     categories = ["Lageröl", "Säsongsöl", "Specialöl"]
@@ -206,37 +213,8 @@ if st.sidebar.button("Systembolaget data"):
 if st.sidebar.button("CCI Data"):
     st.session_state.page = 'CCI Data'
 
+
 # Display content based on the current page
-if st.session_state.page == "CCI Data":
-    # Get the directory of the current script
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(current_dir, 'CCI_kategorier.xlsx')
-
-    # Load the CCI Data provided by the user
-    cci_data_cleaned = pd.read_excel(file_path)
-
-    # Rename columns for clarity
-    cci_data_cleaned.columns = ['Indicator'] + pd.to_datetime(cci_data_cleaned.columns[1:]).tolist()
-
-    # Melt the dataframe to a long format
-    cci_data_long = cci_data_cleaned.melt(id_vars=['Indicator'], var_name='Date', value_name='Value')
-
-    # Convert the Date column to datetime format
-    cci_data_long['Date'] = pd.to_datetime(cci_data_long['Date'])
-
-    # Remove any leading/trailing spaces in the Indicator names
-    cci_data_long['Indicator'] = cci_data_long['Indicator'].str.strip()
-
-    # Filter out rows with missing 'Value' and 'Indicator'
-    cci_data_long = cci_data_long.dropna(subset=['Value', 'Indicator'])
-
-    # Convert 'Value' to numeric
-    cci_data_long['Value'] = pd.to_numeric(cci_data_long['Value'], errors='coerce')
-
-    # Add a quarter column and convert to string format
-    cci_data_long['Quarter'] = cci_data_long['Date'].dt.to_period('Q').astype(str)
-
-
 if st.session_state.page == "Systembolaget data":
     st.subheader("Systembolaget data Dashboard")
     tab1, tab2, tab3 = st.tabs(["Yearly statistics", "Comparison by year", "Annual Percentage Change Comparison"])
@@ -331,6 +309,7 @@ if st.session_state.page == "Home page":
     st.title("Vega Bryggeri Dashboard")
     st.write("Welcome to the Vega Bryggeri Dashboard! This dashboard provides insights into the sales data of Vega Bryggeri and other breweries in the region.")
 
+
 if st.session_state.page == "Job Postings Data":
     st.subheader("Job Data Analysis")
 
@@ -424,8 +403,6 @@ if st.session_state.page == "Job Postings Data":
         pie_fig.update_layout(title_text=f'Distribution of Employment Types for {selected_month}', title_y=0.98)
 
         st.plotly_chart(pie_fig, use_container_width=True)
-
-
 
 
     with tab2:
@@ -584,12 +561,7 @@ if st.session_state.page == "Job Postings Data":
 
 
 if st.session_state.page == "CCI Data":
-    # Get the directory of the current script
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(current_dir, 'CCI_kategorier.xlsx')
-
-    # Load the CCI Data provided by the user
-    cci_data_cleaned = pd.read_excel(file_path)
+    cci_data_cleaned = load_cci_data()
 
     # Rename columns for clarity
     cci_data_cleaned.columns = ['Indicator'] + pd.to_datetime(cci_data_cleaned.columns[1:]).tolist()

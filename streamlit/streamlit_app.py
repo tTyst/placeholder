@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import numpy as np
 import os
 import calendar
+import base64
 
 st.set_page_config(
     page_title="TapTrack Analytics",
@@ -56,11 +57,32 @@ css_code = """
 """
 
 st.markdown(css_code, unsafe_allow_html=True)
+# Function to read image and convert to base64
+def get_image_base64(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+# Construct the path to the image using os.path
+dir_path = os.path.dirname(os.path.realpath(__file__))
+image_path = os.path.join(dir_path, "Logotype.png")
+
+# Get base64 string of the image
+image_base64 = get_image_base64(image_path)
+
+# Create a clickable image in the sidebar
+st.sidebar.markdown(
+    f"""
+    <a href="/?page=Home%20page" target="_self">
+        <img src="data:image/png;base64,{image_base64}" style="width: 100%;">
+    </a>
+    """,
+    unsafe_allow_html=True
+)
 
 
 # Initialize the session state for page management if not already set
 if 'page' not in st.session_state:
-    st.session_state.page = 'Home page'
+    st.session_state.page = 'Home'
 
 
 # Load data function
@@ -202,19 +224,56 @@ def get_combined_percentage_change_data():
 
 
 # Sidebar
-st.sidebar.title("Category menu")
+st.sidebar.title("Tools")
 # Buttons for page navigation
-if st.sidebar.button("Home page"):
-    st.session_state.page = 'Home page'
-if st.sidebar.button("Job Postings Data"):
+if st.sidebar.button("Home"):
+    st.session_state.page = 'Home'
+if st.sidebar.button("Market Analytics"):
     st.session_state.page = 'Job Postings Data'
-if st.sidebar.button("Systembolaget data"):
-    st.session_state.page = 'Systembolaget data'
+if st.sidebar.button("Systembolaget Sales"):
+    st.session_state.page = 'Systembolaget Sales'
 
+# Add an empty space that will grow to push the bottom section down
+st.sidebar.markdown("<div id='spacer' style='height: 200px;'></div>", unsafe_allow_html=True)
+
+# Add the widget that should be at the bottom
+st.sidebar.title("Info")
+if st.sidebar.button("### About us"):
+    st.session_state.page = 'About us'
+
+if st.session_state.page == "About us":
+    st.write("### About us")
+    st.write("""We are a group of five students from Gothenburg University, enrolled in the Systems Science program and the course Data-Driven Business Development.
+              Our project aims to support a local microbrewery from Gothenburg, Sweden, named Vega Bryggeri.
+
+Driven by our interest in craft beers and their relevance to our base data set, we conducted field research to understand Vega's business operations, workflows, and challenges. Based on our findings, we developed this market analysis tool to provide Vega Bryggeri with valuable business insights and a stronger foundation for strategic decision-making.
+
+If you have any questions about this application or our project, feel free to contact us. Group members and their contact information are linked below:
+             
+- [Teodor Orrbeck](mailto:teo.orrbeck@hotmail.com) - [LinkedIn](https://www.linkedin.com/in/teodor-orrbeck-1385541b8/)
+- [William Dahlgren](mailto:william.c.dahlgren@gmail.com) - [LinkedIn](https://www.linkedin.com/in/william-dahlgren-54075b265/)
+- [Johannes Taheri](mailto:johannestaheri@gmail.com) - [LinkedIn](https://www.linkedin.com/in/johannes-taheri-54327b232/)
+- [Oskar Schymberg](mailto:oskar.schymberg@gmail.com) - [LinkedIn](https://www.linkedin.com/in/oskar-schymberg-03864224a/)
+- [Jakob Henricsson](mailto:jakobhenricsson@gmail.com) - [LinkedIn](https://www.linkedin.com/in/jakob-henricsson-b59583197/)
+             
+""")
+# JavaScript to dynamically adjust the spacer height
+st.markdown("""
+    <script>
+        // Adjust the height of the spacer to push the bottom section to the bottom
+        const spacer = document.getElementById('spacer');
+        const sidebar = document.getElementsByClassName('css-1d391kg')[0];
+        spacer.style.height = (sidebar.clientHeight - spacer.offsetTop) + 'px';
+    </script>
+    """, unsafe_allow_html=True)
+
+# Add the widget that should be at the bottom
+
+    
 # Display content based on the current page
-if st.session_state.page == "Systembolaget data":
-    st.subheader("Systembolaget data Dashboard")
-    tab1, tab2, tab3 = st.tabs(["Yearly statistics", "Comparison by year", "Annual Percentage Change Comparison"])
+if st.session_state.page == "Systembolaget Sales":
+    st.subheader("Systembolaget Sales Dashboard")
+    tab1, tab2, tab3 = st.tabs(["Top products", "Volume by year", "Market Share Comparison"])
 
     with tab1:
         st.markdown("""
@@ -231,23 +290,29 @@ if st.session_state.page == "Systembolaget data":
         
         top_vega = get_top_vega_bryggeri(data, top_n=number_of_beers)
         
-        fig = px.bar(top_vega, x='Kvittonamn', y='Försäljning i liter',
-                    title=f"Top {number_of_beers} Products from Vega Bryggeri by Sales Volume",
-                    color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b', '#30e3ca']
-                    )
-        st.plotly_chart(fig, use_container_width=True)
-
-        # Rename the columns for display and select only the desired columns
+        # Rename the columns for display
         top_vega_display = top_vega.rename(columns={
             'Kvittonamn': 'Product Name',
             'Producentnamn': 'Producer Name',
-            'Försäljning i liter': 'Sales in Liters',
+            'Försäljning i liter': 'Sales in liters',
             'Varugrupp detalj': 'Product Group'
-        })[['Product Name','Sales in Liters', 'Product Group']]
+        })[['Product Name', 'Sales in liters', 'Product Group']]
 
+        # Create the bar graph with renamed columns
+        fig = px.bar(top_vega_display, x='Product Name', y='Sales in liters',
+                     title=f"Top {number_of_beers} Products from Vega Bryggeri by Sales Volume",
+                     color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b', '#30e3ca']
+                     )
+        
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.write("")
+
+        # Display the dataframe
         top_vega_display = top_vega_display.reset_index(drop=True)
         top_vega_display.index = top_vega_display.index + 1
         st.dataframe(top_vega_display)
+
 
 
     with tab2:
@@ -271,6 +336,13 @@ if st.session_state.page == "Systembolaget data":
         
         # Filter out the year 2018
         percentage_data_filtered = percentage_data[percentage_data['Year'] != 2018]
+        
+        # Ensure year is displayed correctly and format percentage columns
+        percentage_data_filtered['Year'] = percentage_data_filtered['Year'].astype(str)
+        percentage_data_filtered['Vega Bryggeri Change %'] = percentage_data_filtered['Vega Bryggeri Change %'].round(1)
+        percentage_data_filtered['Total Market Change %'] = percentage_data_filtered['Total Market Change %'].round(1)
+        percentage_data_filtered['Similar Gothenburg Breweries Change %'] = percentage_data_filtered['Similar Gothenburg Breweries Change %'].round(1)
+        percentage_data_filtered['Non-Gothenburg Breweries Change %'] = percentage_data_filtered['Non-Gothenburg Breweries Change %'].round(1)
         
         fig3 = px.line(
             percentage_data_filtered,
@@ -298,22 +370,30 @@ if st.session_state.page == "Systembolaget data":
         )
 
         st.plotly_chart(fig3, use_container_width=False)  # Set use_container_width to False to use manual width
+
         st.dataframe(percentage_data_filtered[['Year', 'Vega Bryggeri Change %', 'Total Market Change %', 'Similar Gothenburg Breweries Change %', 'Non-Gothenburg Breweries Change %']])
+
 
     
 
-if st.session_state.page == "Home page":
+if st.session_state.page == "Home":
     st.title("TapTrack Analytics")
+    
     st.write("---")
-    st.write("Welcome to the TapTrack Analytics! This dashboard provides insights into the sales data of Vega Bryggeri and other breweries in the region.")
+    st.write("""
+            TapTrack Analytics offers comprehensive insights into the sales data of Vega Bryggeri and shows comparisons to other microbreweries across Sweden. Our dashboard serves as a Market Analytics tool, providing valuable information on job trends, future projections, consumer behavior, and overall market dynamics.
+
+            Our mission is to deliver data-driven business intelligence to support strategic decision-making for Vega Bryggeri and enhance their competitive edge in the industry.
+
+             """)
 
 
 if st.session_state.page == "Job Postings Data":
-    st.subheader("Job Data Analysis")
+    st.subheader("Market Analytics")
 
-    tab1, tab2, tab3 = st.tabs(["Employment type Timeline", "Job Listings Prognosis", "CCI"])
+    tab1, tab2, tab3 = st.tabs(["Job Listings Forecast", "Employment type", "Consumer trends"])
 
-    with tab1:
+    with tab2:
         data = load_combined_job_data()
         data['publication_date'] = pd.to_datetime(data['publication_date'], errors='coerce')
         data['year_quarter'] = data['publication_date'].dt.to_period('Q').astype(str)
@@ -342,15 +422,15 @@ if st.session_state.page == "Job Postings Data":
         
         # Add context text
         st.markdown("""
-        ### Employment type Timeline Over Quarters
+        ### Employment type Over Quarters
         This line chart illustrates the distribution of different employment types over the quarters.
-        It helps in understanding hiring trends and the demand for various types of employment over time.
+        ***It helps in understanding hiring trends/volatility and the demand for various types of employment over time.***
         Use the chart to identify seasonal patterns or shifts in employment types.
         """)
 
         # Create a line chart for the clusters over time
         fig = px.line(full_cluster_counts, x='Year-Quarter', y='Count', color='Employment type', 
-                      title='Employment type Timeline Over Quarters',
+                      title='Employment type Over Quarters',
                       labels={'Year-Quarter': 'Year-Quarter', 'Count': 'Count', 'Employment type': 'Employment type'},
                       color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b', '#30e3ca'])
 
@@ -382,12 +462,14 @@ if st.session_state.page == "Job Postings Data":
         st.plotly_chart(fig, use_container_width=True)
 
         # Sort the years before displaying in the selectbox
+        
+        st.markdown("#### Detailed Monthly Data")
         years = sorted(data['Year'].unique())
         selected_year = st.selectbox('Select Year to Filter Monthly Data', years)
         filtered_data = data[data['Year'] == selected_year]
 
         # Display the month-wise data in a pie chart
-        st.write("Monthly Data")
+        
         monthly_counts = filtered_data.groupby(['Year-Month', 'Employment type']).size().reset_index(name='Count')
 
         # Create a dictionary to map "YYYY-MM" to the month name
@@ -403,11 +485,11 @@ if st.session_state.page == "Job Postings Data":
         st.plotly_chart(pie_fig, use_container_width=True)
 
 
-    with tab2:
+    with tab1:
         st.write("""
         ### Job Listings and Forecasts Over Time
         This graph presents the job listings and forecasts for all job postings, including a specific focus on the restaurant industry. 
-        Shaded areas around the forecast lines indicate the confidence intervals, showing the range within which the ***actual values are expected to fall.***
+        Shaded areas around the forecast lines indicate the confidence intervals, ***showing the range within which the actual values are expected to fall.***
         """)
 
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -532,7 +614,7 @@ if st.session_state.page == "Job Postings Data":
 
         # Update layout with the specified date range and log scale for y-axis
         fig_with_forecast_range_corrected.update_layout(
-            title='Job Listings and Forecasts Over Time',
+            title='Forecasted Job Listings',
             xaxis_title='Publication Date',
             yaxis_title='Job Listings',
             legend_title='Job Type',
@@ -582,10 +664,10 @@ if st.session_state.page == "Job Postings Data":
 
         # Add context text
         st.markdown("""
-        ### Consumer Confidence Index Data
-        The Consumer Confidence Index (CCI) measures the level of optimism that consumers feel about the overall state of the economy 
+        ### Consumer Confidence Index
+        The Consumer Confidence Index (Consumer trends) measures the level of optimism that consumers feel about the overall state of the economy 
         and their personal financial situation. This data is crucial for understanding consumer behavior and economic trends.
-        Below are analyses based on the CCI data. **100** is the baseline value for the index, with values above 100 indicating optimism.
+        Below are analyses based on the Consumer trends data. **100** is the baseline value for the index, with values above 100 indicating optimism.
         """)
 
         # Create the line plot

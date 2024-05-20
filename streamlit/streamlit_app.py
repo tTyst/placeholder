@@ -256,7 +256,7 @@ if st.session_state.page == "Systembolaget data":
         
         top_vega = get_top_vega_bryggeri(data, top_n=number_of_beers)
         
-        fig = px.bar(top_vega, x='Namn', y='Försäljning i liter',
+        fig = px.bar(top_vega, x='Kvittonamn', y='Försäljning i liter',
                     title=f"Top {number_of_beers} Products from Vega Bryggeri by Sales Volume",
                     color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b', '#30e3ca']
                     )

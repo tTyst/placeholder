@@ -7,7 +7,7 @@ import os
 import calendar
 
 st.set_page_config(
-    page_title="Vega Bryggeri Dashboard",
+    page_title="TapTrack Analytics",
     page_icon=":beers:",
     initial_sidebar_state="expanded",
 )
@@ -42,7 +42,7 @@ css_code = """
     }
     
     #vega-bryggeri-dashboard::before {
-        content: 'Vega Bryggeri Dashboard';
+        content: 'TapTrack Analytics';
         position: absolute;
         top: 55px;
         left: 0;
@@ -303,8 +303,9 @@ if st.session_state.page == "Systembolaget data":
     
 
 if st.session_state.page == "Home page":
-    st.title("Vega Bryggeri Dashboard")
-    st.write("Welcome to the Vega Bryggeri Dashboard! This dashboard provides insights into the sales data of Vega Bryggeri and other breweries in the region.")
+    st.title("TapTrack Analytics")
+    st.write("---")
+    st.write("Welcome to the TapTrack Analytics! This dashboard provides insights into the sales data of Vega Bryggeri and other breweries in the region.")
 
 
 if st.session_state.page == "Job Postings Data":
@@ -646,8 +647,7 @@ if st.session_state.page == "Job Postings Data":
 
 # Footer
 st.markdown("---")
-st.markdown("Created by Algorithm Avengers with :heart: for Vega Bryggeri.")
-
+st.markdown("© 2024 MicroBrew Metrics. All rights reserved.")
 if __name__ == "__main__":
     def main():
         pass  # Main function definition is empty as Streamlit runs script top-down

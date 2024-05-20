@@ -72,7 +72,7 @@ image_base64 = get_image_base64(image_path)
 # Create a clickable image in the sidebar
 st.sidebar.markdown(
     f"""
-    <a href="/?page=Home%20page" target="_self">
+    <a href="/?page=Home" target="_self">
         <img src="data:image/png;base64,{image_base64}" style="width: 100%;">
     </a>
     """,

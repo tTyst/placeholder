@@ -431,8 +431,8 @@ if st.session_state.page == "Job Postings Data":
     with tab2:
         st.write("""
         ### Job Listings and Forecasts Over Time
-        This graph shows the job listings and forecasts for all job postings and specifically for the restaurant business. 
-        You can **deselect certain lines** in the legend to get a clearer view of specific data.
+        This graph presents the job listings and forecasts for all job postings, including a specific focus on the restaurant industry. 
+        Shaded areas around the forecast lines indicate the confidence intervals, showing the range within which the ***actual values are expected to fall.***
         """)
 
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -496,9 +496,30 @@ if st.session_state.page == "Job Postings Data":
             fill='toself',
             fillcolor='rgba(255, 0, 0, 0.2)',
             line=dict(color='rgba(255, 0, 0, 0)'),
-            hoverinfo="skip",
+            name='Confidence Interval All Jobs',
+            hoverinfo='skip',
             showlegend=False,
-            name='Confidence Interval All Jobs'
+        ))
+
+        # Add lower and upper bounds for all job listings with hover info
+        fig_with_forecast_range_corrected.add_trace(go.Scatter(
+            x=df_all_jobs['publication_date'],
+            y=df_all_jobs['lower'],
+            mode='lines',
+            line=dict(color='rgba(255, 0, 0, 0.2)'),
+            name='Lower Bound All Jobs',
+            showlegend=False,
+            hoverinfo='y+name',
+        ))
+
+        fig_with_forecast_range_corrected.add_trace(go.Scatter(
+            x=df_all_jobs['publication_date'],
+            y=df_all_jobs['upper'],
+            mode='lines',
+            line=dict(color='rgba(255, 0, 0, 0.2)'),
+            name='Upper Bound All Jobs',
+            showlegend=False,
+            hoverinfo='y+name',
         ))
 
         # Add confidence interval for industry related job listings
@@ -508,9 +529,30 @@ if st.session_state.page == "Job Postings Data":
             fill='toself',
             fillcolor='rgba(0, 255, 0, 0.2)',
             line=dict(color='rgba(0, 255, 0, 0)'),
-            hoverinfo="skip",
+            name='Confidence Interval Industry Jobs',
+            hoverinfo='skip',
             showlegend=False,
-            name='Confidence Interval Industry Jobs'
+        ))
+
+        # Add lower and upper bounds for industry related job listings with hover info
+        fig_with_forecast_range_corrected.add_trace(go.Scatter(
+            x=df_restaurant_jobs['publication_date'],
+            y=df_restaurant_jobs['lower'],
+            mode='lines',
+            line=dict(color='rgba(0, 255, 0, 0.2)'),
+            name='Lower Bound Industry Jobs',
+            showlegend=False,
+            hoverinfo='y+name',
+        ))
+
+        fig_with_forecast_range_corrected.add_trace(go.Scatter(
+            x=df_restaurant_jobs['publication_date'],
+            y=df_restaurant_jobs['upper'],
+            mode='lines',
+            line=dict(color='rgba(0, 255, 0, 0.2)'),
+            name='Upper Bound Industry Jobs',
+            showlegend=False,
+            hoverinfo='y+name',
         ))
 
         # Update layout with the specified date range and log scale for y-axis

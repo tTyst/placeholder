@@ -32,7 +32,7 @@ css_code = """
         font-family: 'Helvetica Neue', sans-serif !important;
     }
     
-    #vega-bryggeri-dashboard {
+    #taptrack-analytics {
         position: relative;
         font-family: 'Helvetica Neue', sans-serif;
         font-size: 57px;
@@ -41,7 +41,7 @@ css_code = """
         color: transparent; /* Hide the original text */
     }
     
-    #vega-bryggeri-dashboard::before {
+    #taptrack-analytics::before {
         content: 'TapTrack Analytics';
         position: absolute;
         top: 55px;

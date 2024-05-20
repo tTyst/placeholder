@@ -210,9 +210,6 @@ if st.sidebar.button("Job Postings Data"):
     st.session_state.page = 'Job Postings Data'
 if st.sidebar.button("Systembolaget data"):
     st.session_state.page = 'Systembolaget data'
-if st.sidebar.button("CCI Data"):
-    st.session_state.page = 'CCI Data'
-
 
 # Display content based on the current page
 if st.session_state.page == "Systembolaget data":
@@ -303,7 +300,7 @@ if st.session_state.page == "Systembolaget data":
         st.plotly_chart(fig3, use_container_width=False)  # Set use_container_width to False to use manual width
         st.dataframe(percentage_data_filtered[['Year', 'Vega Bryggeri Change %', 'Total Market Change %', 'Similar Gothenburg Breweries Change %', 'Non-Gothenburg Breweries Change %']])
 
-
+    
 
 if st.session_state.page == "Home page":
     st.title("Vega Bryggeri Dashboard")
@@ -313,7 +310,7 @@ if st.session_state.page == "Home page":
 if st.session_state.page == "Job Postings Data":
     st.subheader("Job Data Analysis")
 
-    tab1, tab2 = st.tabs(["Employment type Timeline", "Job Listings Prognosis"])
+    tab1, tab2, tab3 = st.tabs(["Employment type Timeline", "Job Listings Prognosis", "CCI"])
 
     with tab1:
         data = load_combined_job_data()
@@ -558,94 +555,93 @@ if st.session_state.page == "Job Postings Data":
 
         st.plotly_chart(fig_with_forecast_range_corrected)
 
+    with tab3:
+        cci_data_cleaned = load_cci_data()
 
+        # Rename columns for clarity
+        cci_data_cleaned.columns = ['Indicator'] + pd.to_datetime(cci_data_cleaned.columns[1:]).tolist()
 
-if st.session_state.page == "CCI Data":
-    cci_data_cleaned = load_cci_data()
+        # Melt the dataframe to a long format
+        cci_data_long = cci_data_cleaned.melt(id_vars=['Indicator'], var_name='Date', value_name='Value')
 
-    # Rename columns for clarity
-    cci_data_cleaned.columns = ['Indicator'] + pd.to_datetime(cci_data_cleaned.columns[1:]).tolist()
+        # Convert the Date column to datetime format
+        cci_data_long['Date'] = pd.to_datetime(cci_data_long['Date'])
 
-    # Melt the dataframe to a long format
-    cci_data_long = cci_data_cleaned.melt(id_vars=['Indicator'], var_name='Date', value_name='Value')
+        # Remove any leading/trailing spaces in the Indicator names
+        cci_data_long['Indicator'] = cci_data_long['Indicator'].str.strip()
 
-    # Convert the Date column to datetime format
-    cci_data_long['Date'] = pd.to_datetime(cci_data_long['Date'])
+        # Filter out rows with missing 'Value' and 'Indicator'
+        cci_data_long = cci_data_long.dropna(subset=['Value', 'Indicator'])
 
-    # Remove any leading/trailing spaces in the Indicator names
-    cci_data_long['Indicator'] = cci_data_long['Indicator'].str.strip()
+        # Convert 'Value' to numeric
+        cci_data_long['Value'] = pd.to_numeric(cci_data_long['Value'], errors='coerce')
 
-    # Filter out rows with missing 'Value' and 'Indicator'
-    cci_data_long = cci_data_long.dropna(subset=['Value', 'Indicator'])
+        # Add a quarter column and convert to string format
+        cci_data_long['Quarter'] = cci_data_long['Date'].dt.to_period('Q').astype(str)
 
-    # Convert 'Value' to numeric
-    cci_data_long['Value'] = pd.to_numeric(cci_data_long['Value'], errors='coerce')
+        # Add context text
+        st.markdown("""
+        ### Consumer Confidence Index Data
+        The Consumer Confidence Index (CCI) measures the level of optimism that consumers feel about the overall state of the economy 
+        and their personal financial situation. This data is crucial for understanding consumer behavior and economic trends.
+        Below are analyses based on the CCI data. **100** is the baseline value for the index, with values above 100 indicating optimism.
+        """)
 
-    # Add a quarter column and convert to string format
-    cci_data_long['Quarter'] = cci_data_long['Date'].dt.to_period('Q').astype(str)
+        # Create the line plot
+        fig_trend = px.line(cci_data_long, 
+                            x='Quarter', y='Value',
+                            color='Indicator', 
+                            title='Consumer Confidence Index Over Time by Indicator',
+                            color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b', '#30e3ca'])
 
-    # Add context text
-    st.markdown("""
-    ### Consumer Confidence Index Data
-    The Consumer Confidence Index (CCI) measures the level of optimism that consumers feel about the overall state of the economy 
-    and their personal financial situation. This data is crucial for understanding consumer behavior and economic trends.
-    Below are analyses based on the CCI data. **100** is the baseline value for the index, with values above 100 indicating optimism.
-    """)
+        # Add a trace for the 100 baseline to make it interactive
+        fig_trend.add_trace(go.Scatter(
+            x=cci_data_long['Quarter'],
+            y=[100] * len(cci_data_long),
+            mode='lines',
+            line=dict(color="LightSeaGreen", width=2, dash="dash"),
+            name='Baseline (100)'
+        ))
 
-    # Create the line plot
-    fig_trend = px.line(cci_data_long, 
-                        x='Quarter', y='Value',
-                        color='Indicator', 
-                        title='Consumer Confidence Index Over Time by Indicator',
-                        color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b', '#30e3ca'])
+        st.plotly_chart(fig_trend)
 
-    # Add a trace for the 100 baseline to make it interactive
-    fig_trend.add_trace(go.Scatter(
-        x=cci_data_long['Quarter'],
-        y=[100] * len(cci_data_long),
-        mode='lines',
-        line=dict(color="LightSeaGreen", width=2, dash="dash"),
-        name='Baseline (100)'
-    ))
+        # 2. Category Comparison
+        st.markdown("""
+        #### Category Comparison
+        Select a year and quarter to compare the Consumer Confidence Index across different categories. 
+        This bar chart provides a snapshot of consumer confidence in various sectors for the selected period.
+        """)
 
-    st.plotly_chart(fig_trend)
+        # Extract unique years and quarters
+        cci_data_long['Year'] = cci_data_long['Date'].dt.year
+        cci_data_long['Quarter'] = cci_data_long['Date'].dt.quarter
 
-    # 2. Category Comparison
-    st.markdown("""
-    #### Category Comparison
-    Select a year and quarter to compare the Consumer Confidence Index across different categories. 
-    This bar chart provides a snapshot of consumer confidence in various sectors for the selected period.
-    """)
+        unique_years = cci_data_long['Year'].unique()
+        unique_quarters = ['Q1', 'Q2', 'Q3', 'Q4']
 
-    # Extract unique years and quarters
-    cci_data_long['Year'] = cci_data_long['Date'].dt.year
-    cci_data_long['Quarter'] = cci_data_long['Date'].dt.quarter
+        # Dropdown menus for year and quarter
+        selected_year = st.selectbox('Select Year for Category Comparison', sorted(unique_years))
+        selected_quarter = st.selectbox('Select Quarter for Category Comparison', unique_quarters)
 
-    unique_years = cci_data_long['Year'].unique()
-    unique_quarters = ['Q1', 'Q2', 'Q3', 'Q4']
+        # Map quarter names back to integers for filtering
+        quarter_mapping = {'Q1': 1, 'Q2': 2, 'Q3': 3, 'Q4': 4}
+        selected_quarter_int = quarter_mapping[selected_quarter]
 
-    # Dropdown menus for year and quarter
-    selected_year = st.selectbox('Select Year for Category Comparison', sorted(unique_years))
-    selected_quarter = st.selectbox('Select Quarter for Category Comparison', unique_quarters)
+        # Filter the data for the selected year and quarter
+        filtered_data = cci_data_long[(cci_data_long['Year'] == selected_year) & 
+                                    (cci_data_long['Quarter'] == selected_quarter_int)]
 
-    # Map quarter names back to integers for filtering
-    quarter_mapping = {'Q1': 1, 'Q2': 2, 'Q3': 3, 'Q4': 4}
-    selected_quarter_int = quarter_mapping[selected_quarter]
-
-    # Filter the data for the selected year and quarter
-    filtered_data = cci_data_long[(cci_data_long['Year'] == selected_year) & 
-                                (cci_data_long['Quarter'] == selected_quarter_int)]
-
-    # Create the bar chart
-    fig_category_comparison = px.bar(
-        filtered_data, 
-        x='Indicator', 
-        y='Value', 
-        title=f'Consumer Confidence Index by Category for {selected_quarter} {selected_year}',
-        color='Indicator',  # Use different colors for each bar
-        color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b']  # Your specified colors
-    )
-    st.plotly_chart(fig_category_comparison)
+        # Create the bar chart
+        fig_category_comparison = px.bar(
+            filtered_data, 
+            x='Indicator', 
+            y='Value', 
+            title=f'Consumer Confidence Index by Category for {selected_quarter} {selected_year}',
+            color='Indicator',  # Use different colors for each bar
+            color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b']  # Your specified colors
+        )
+        st.plotly_chart(fig_category_comparison)
+    
 
 
 # Footer

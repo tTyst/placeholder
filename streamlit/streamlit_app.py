@@ -8,7 +8,7 @@ import calendar
 import base64
 
 st.set_page_config(
-    page_title="TapTrack Analytics",
+    page_title="TapTrack",
     page_icon=":beers:",
     initial_sidebar_state="expanded",
 )
@@ -33,7 +33,7 @@ css_code = """
         font-family: 'Helvetica Neue', sans-serif !important;
     }
     
-    #taptrack-analytics {
+    #taptrack {
         position: relative;
         font-family: 'Helvetica Neue', sans-serif;
         font-size: 57px;
@@ -42,12 +42,12 @@ css_code = """
         color: transparent; /* Hide the original text */
     }
     
-    #taptrack-analytics::before {
-        content: 'TapTrack Analytics';
+    #taptrack::before {
+        content: 'TapTrack';
         position: absolute;
         top: 55px;
         left: 0;
-        background: linear-gradient(-135deg, #f670c1, #ffcc90);
+        background: linear-gradient(-135deg, #5F9EA0, #032139);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -377,11 +377,11 @@ if st.session_state.page == "Systembolaget Sales":
     
 
 if st.session_state.page == "Home":
-    st.title("TapTrack Analytics")
+    st.title("TapTrack")
     
     st.write("---")
     st.write("""
-            TapTrack Analytics offers comprehensive insights into the sales data of Vega Bryggeri and shows comparisons to other microbreweries across Sweden. Our dashboard serves as a Market Analytics tool, providing valuable information on job trends, future projections, consumer behavior, and overall market dynamics.
+            TapTrack offers comprehensive insights into the sales data of Vega Bryggeri and shows comparisons to other microbreweries across Sweden. Our dashboard serves as a Market Analytics tool, providing valuable information on job trends, future projections, consumer behavior, and overall market dynamics.
 
             Our mission is to deliver data-driven business intelligence to support strategic decision-making for Vega Bryggeri and enhance their competitive edge in the industry.
 

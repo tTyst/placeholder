@@ -272,7 +272,7 @@ st.markdown("""
     
 # Display content based on the current page
 if st.session_state.page == "Systembolaget Sales":
-    st.subheader("Systembolaget Sales Dashboard")
+    st.subheader("Systembolaget Sales")
     tab1, tab2, tab3 = st.tabs(["Top products", "Volume by year", "Market Share Comparison"])
 
     with tab1:
@@ -313,11 +313,12 @@ if st.session_state.page == "Systembolaget Sales":
         top_vega_display.index = top_vega_display.index + 1
         st.dataframe(top_vega_display)
 
+        
 
 
     with tab2:
         st.markdown("""
-                ### Sales Comparison Over Years
+                ### Total Sales Comparison Over Years
                 This line chart compares the sales volume over different years. It helps to visualize the trend in sales volume across the years.
                 """)
 
@@ -325,6 +326,51 @@ if st.session_state.page == "Systembolaget Sales":
         fig2 = px.line(comparative_data, x='Year', y='Sales in liters', title='Sales Comparison Over Years',
                        color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b', '#30e3ca'])
         st.plotly_chart(fig2, use_container_width=True)
+
+        st.markdown("""
+        ### Single Product Sales Over Years
+        This line chart compares the sales volume over different years for the selected product.
+        """)
+
+        # Load data for all years and add a 'Year' column
+        years = [2018, 2019, 2020, 2021, 2022, 2023]
+        data_frames = []
+        for year in years:
+            df = load_data(year)
+            df['Year'] = year
+            data_frames.append(df)
+
+        combined_data = pd.concat(data_frames)
+
+        # Filter for Vega Bryggeri products
+        vega_data = combined_data[combined_data['Producentnamn'] == 'Vega Bryggeri']
+
+        # Get a list of unique products from Vega Bryggeri
+        product_list = vega_data['Kvittonamn'].unique()
+        
+        # Product selection
+        selected_product = st.selectbox('Select Product', product_list)
+        
+        # Filter data for the selected product
+        filtered_data = vega_data[vega_data['Kvittonamn'] == selected_product]
+        
+        # Group data by year and sum the sales
+        yearly_sales = filtered_data.groupby('Year').agg({'Försäljning i liter': 'sum'}).reset_index()
+
+        # Convert the Year column to string
+        yearly_sales['Year'] = yearly_sales['Year'].astype(str)
+        
+        # Rename columns for display
+        yearly_sales = yearly_sales.rename(columns={'Year': 'Year', 'Försäljning i liter': 'Sales in liters'})
+        
+        # Create the line chart
+        fig = px.line(yearly_sales, x='Year', y='Sales in liters', title=f'Sales of {selected_product} Over Years',
+                    markers=True, color_discrete_sequence=['#1f77b4'])
+        
+        # Ensure the x-axis treats the years as categorical data
+        fig.update_layout(xaxis_type='category')
+        
+        st.plotly_chart(fig, use_container_width=True)
 
     with tab3:
         st.markdown("""

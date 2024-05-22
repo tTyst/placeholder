@@ -318,16 +318,6 @@ if st.session_state.page == "Systembolaget Sales":
 
     with tab2:
         st.markdown("""
-                ### Total Sales Comparison Over Years
-                This line chart compares the sales volume over different years. It helps to visualize the trend in sales volume across the years.
-                """)
-
-        comparative_data = get_comparative_data()
-        fig2 = px.line(comparative_data, x='Year', y='Sales in liters', title='Sales Comparison Over Years',
-                       color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b', '#30e3ca'])
-        st.plotly_chart(fig2, use_container_width=True)
-
-        st.markdown("""
         ### Single Product Sales Over Years
         This line chart compares the sales volume over different years for the selected product.
         """)
@@ -371,6 +361,18 @@ if st.session_state.page == "Systembolaget Sales":
         fig.update_layout(xaxis_type='category')
         
         st.plotly_chart(fig, use_container_width=True)
+        
+        st.markdown("""
+                ### Total Sales Comparison Over Years
+                This line chart compares the sales volume over different years. It helps to visualize the trend in sales volume across the years.
+                """)
+
+        comparative_data = get_comparative_data()
+        fig2 = px.line(comparative_data, x='Year', y='Sales in liters', title='Sales Comparison Over Years',
+                       color_discrete_sequence=['#1f77b4', '#ff6b6b', '#ffc13b', '#30e3ca'])
+        st.plotly_chart(fig2, use_container_width=True)
+
+        
 
     with tab3:
         st.markdown("""

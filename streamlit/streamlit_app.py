@@ -234,7 +234,7 @@ if st.sidebar.button("Systembolaget Sales"):
     st.session_state.page = 'Systembolaget Sales'
 
 # Add an empty space that will grow to push the bottom section down
-st.sidebar.markdown("<div id='spacer' style='height: 30px;'></div>", unsafe_allow_html=True)
+st.sidebar.markdown("<div id='spacer' style='height: 130px;'></div>", unsafe_allow_html=True)
 
 # Add the widget that should be at the bottom
 st.sidebar.title("Info")

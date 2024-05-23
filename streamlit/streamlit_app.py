@@ -554,7 +554,7 @@ if st.session_state.page == "Job Postings Data":
         df_restaurant_jobs['publication_date'] = pd.to_datetime(df_restaurant_jobs['publication_date'], errors='coerce')
 
         # Filter the data within the specified date range
-        start_date = '2023-12-01'
+        start_date = '2023-01-31'
         end_date = '2024-06-30'
 
         # Create the figure
